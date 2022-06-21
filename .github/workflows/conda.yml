@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.6", "3.8"]
+        python-version: ["3.6", "3.8", "3.9"]
 
     runs-on: ${{ matrix.platform }}
 
@@ -38,7 +38,7 @@ jobs:
         run: conda build conda.recipe
 
       - name: Install
-        run: conda install -c ${CONDA_PREFIX}/conda-bld/ python_example
+        run: conda install -c ${CONDA_PREFIX}/conda-bld/ dfinder
 
       - name: Test
         run: python tests/test.py

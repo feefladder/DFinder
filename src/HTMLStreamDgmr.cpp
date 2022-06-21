@@ -1,5 +1,4 @@
 #include "HTMLStreamDgmr.h"
-#include "ReferenceFinder.h"
 
 #include <sstream>
 

@@ -1,4 +1,4 @@
-python_example Documentation
+dfinder Documentation
 ============================
 
 Contents:
@@ -6,4 +6,4 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   python_example
+   dfinder

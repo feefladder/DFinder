@@ -22,7 +22,7 @@ PYBIND11_MODULE(dfinder, m) {
         Pybind11 example plugin
         -----------------------
 
-        .. currentmodule:: python_example
+        .. currentmodule:: dfinder
 
         .. autosummary::
            :toctree: _generate

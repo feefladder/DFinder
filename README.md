@@ -1,4 +1,4 @@
-python_example
+dfinder
 ==============
 
 [![Gitter][gitter-badge]][gitter-link]
@@ -11,30 +11,48 @@ python_example
 | pip builds           | [![Pip Actions Status][actions-pip-badge]][actions-pip-link] |
 | [`cibuildwheel`][]   | [![Wheels Actions Status][actions-wheels-badge]][actions-wheels-link] |
 
-[gitter-badge]:            https://badges.gitter.im/pybind/Lobby.svg
-[gitter-link]:             https://gitter.im/pybind/Lobby
-[actions-badge]:           https://github.com/pybind/python_example/workflows/Tests/badge.svg
-[actions-conda-link]:      https://github.com/pybind/python_example/actions?query=workflow%3A%22Conda
-[actions-conda-badge]:     https://github.com/pybind/python_example/workflows/Conda/badge.svg
-[actions-pip-link]:        https://github.com/pybind/python_example/actions?query=workflow%3A%22Pip
-[actions-pip-badge]:       https://github.com/pybind/python_example/workflows/Pip/badge.svg
-[actions-wheels-link]:     https://github.com/pybind/python_example/actions?query=workflow%3AWheels
-[actions-wheels-badge]:    https://github.com/pybind/python_example/workflows/Wheels/badge.svg
-[travis-link]:             https://travis-ci.org/pybind/python_example
-[travis-badge]:            https://travis-ci.org/pybind/python_example.svg?branch=master&status=passed
+[gitter-badge]:            https://badges.gitter.im/freakyfee/Lobby.svg
+[gitter-link]:             https://gitter.im/freakyfee/Lobby
+[actions-badge]:           https://github.com/freakyfee/dfinder/workflows/Tests/badge.svg
+[actions-conda-link]:      https://github.com/freakyfee/dfinder/actions?query=workflow%3A%22Conda
+[actions-conda-badge]:     https://github.com/freakyfee/dfinder/workflows/Conda/badge.svg
+[actions-pip-link]:        https://github.com/freakyfee/dfinder/actions?query=workflow%3A%22Pip
+[actions-pip-badge]:       https://github.com/freakyfee/dfinder/workflows/Pip/badge.svg
+[actions-wheels-link]:     https://github.com/freakyfee/dfinder/actions?query=workflow%3AWheels
+[actions-wheels-badge]:    https://github.com/freakyfee/dfinder/workflows/Wheels/badge.svg
+[travis-link]:             https://travis-ci.org/freakyfee/dfinder
+[travis-badge]:            https://travis-ci.org/freakyfee/dfinder.svg?branch=master&status=passed
 [appveyor-link]:           https://ci.appveyor.com/project/wjakob/python-example
 <!-- TODO: get a real badge link for appveyor -->
-[appveyor-badge]:          https://travis-ci.org/pybind/python_example.svg?branch=master&status=passed
+[appveyor-badge]:          https://travis-ci.org/freakyfee/dfinder.svg?branch=master&status=passed
 
 An example project built with [pybind11](https://github.com/pybind/pybind11).
 This requires Python 3.6+; for older versions of Python, check the commit
 history.
 
-Installation
-------------
+Installation - Python
+---------------------
 
  - clone this repository
- - `pip install ./python_example`
+ - ```
+    cd Dfinder                 #move into the directory
+    python -m venv venv        #create a virtual environment
+    source venv/bin/activate   #activate
+    python -m pip install -e . #development install
+   ```
+
+maybe it is also possible to get it from conda-forge in the future
+
+Installation - C++ only
+-----------------------
+To only install the console, I provided a makefile (linux only...)
+
+ - clone the repository
+ - ```
+    cd Dfinder/src
+    make
+    ./a.out
+   ```
 
 CI Examples
 -----------
@@ -54,7 +72,7 @@ the extension module to generate beautiful documentation in a variety formats.
 The following command generates HTML-based reference documentation; for other
 formats please refer to the Sphinx manual:
 
- - `cd python_example/docs`
+ - `cd dfinder/docs`
  - `make html`
 
 License
@@ -68,8 +86,8 @@ Test call
 ---------
 
 ```python
-import python_example
-python_example.add(1, 2)
+import dfinder
+dfinder.add(1, 2)
 ```
 
 [`cibuildwheel`]:          https://cibuildwheel.readthedocs.io

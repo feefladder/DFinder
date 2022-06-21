@@ -1,5 +1,5 @@
 #
-# python_example documentation build configuration file, created by
+# dfinder documentation build configuration file, created by
 # sphinx-quickstart on Fri Feb 26 00:29:33 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -51,7 +51,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "python_example"
+project = "dfinder"
 copyright = "2016, Sylvain Corlay"
 author = "Sylvain Corlay"
 
@@ -205,7 +205,7 @@ html_static_path = ["_static"]
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "python_exampledoc"
+htmlhelp_basename = "dfinderdoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -226,8 +226,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "python_example.tex",
-        "python_example Documentation",
+        "dfinder.tex",
+        "dfinder Documentation",
         "Sylvain Corlay",
         "manual",
     ),
@@ -259,7 +259,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, "python_example", "python_example Documentation", [author], 1)
+    (master_doc, "dfinder", "dfinder Documentation", [author], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -274,10 +274,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "python_example",
-        "python_example Documentation",
+        "dfinder",
+        "dfinder Documentation",
         author,
-        "python_example",
+        "dfinder",
         "One line description of project.",
         "Miscellaneous",
     ),
