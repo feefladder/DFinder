@@ -10,6 +10,7 @@ Copyright:    �1999-2006 Robert J. Lang. All Rights Reserved.
  
 #include "ReferenceFinder.h"
 #include "FindDivisions.h"
+#include "HTMLStreamDgmr.h"
 // #include "RFVersion.h"
 
 #include <fstream>

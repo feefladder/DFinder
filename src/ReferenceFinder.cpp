@@ -908,7 +908,6 @@ void RefBase::DrawPaper()
   sDgmr->DrawPoly(corners, RefDgmr::POLYSTYLE_WHITE);
 }
 
-
 /*****
 Draw the given diagram using the RefDgmr aDgmr.
 *****/
@@ -916,12 +915,15 @@ void RefBase::DrawDiagram(RefDgmr& aDgmr, const DgmInfo& aDgm)
 {
   // Set the current RefDgmr to be aDgmr.
   sDgmr = &aDgmr;
+
+  // Make a note of the action line ref
+  RefBase* ral = sSequence[aDgm.iact];
+
+  //group and label (for SVG tooltips)
+  sDgmr->GroupAndLabel(*ral);
   
   // always draw the paper
   DrawPaper();
-  
-  // Make a note of the action line ref
-  RefBase* ral = sSequence[aDgm.iact];
   
   // draw all refs specified by the DgmInfo. Most get drawn in normal style.
   // The ref that is the action line (and all subsequent refs) get drawn in
@@ -1057,7 +1059,7 @@ Return the label for this mark.
 *****/
 const std::string RefMark::GetLabel() const
 {
-  return std::string(sLabels[mIndex - 1],1);
+  return std::string(1,sLabels[mIndex - 1]);
 }
 
 
@@ -1433,7 +1435,7 @@ Return the label for this line.
 *****/
 const std::string RefLine::GetLabel() const
 {
-  return std::string(sLabels[mIndex - 1],1);
+  return std::string(1,sLabels[mIndex - 1]);
 }
 
 const std::string RefLine_L2L::GetLabel() const
@@ -3333,7 +3335,12 @@ does nothing. All points are given in the paper coordinate system. The subclass
 implementation of drawing should determine the layout of the diagrams and
 offset and scale appropriately to convert to canvas coordinates. See
 PSStreamDgmr for an example.
-*/  
+*/
+
+void RefDgmr::GroupAndLabel(RefBase &refbase)
+{
+  std::cout << "unspecialized GroupAndLabel";
+}
 
 /*****
 Draw a point in the given style.
@@ -4072,408 +4079,6 @@ void PSStreamDgmr::PutMarkList(const XYPt& pp, vector<RefMark*>& vm)
 Write the PostScript code that draws folding sequences for a list of lines.
 *****/
 void PSStreamDgmr::PutLineList(const XYLine& ll, vector<RefLine*>& vl)
-{
-  PutRefList(ll, vl);
-}
-
-/**********
-class HTMLStreamDgmr - a specialization of RefDgmr that writes a HTML page
-stream of diagrams.
-**********/
-
-/* Notes on class HTMLStreamDgmr.
-This class is used in the command-line version of ReferenceFinder to create
-a Postscript graphics file of folding diagrams. It's also a good model for how
-to implement a true graphic outputter.
-*/
-
-/*****
-HTMLStreamDgmr static member initialization
-*****/
-double HTMLStreamDgmr::SVGUnit = 150;    // 72 pts = 1 inch, 1 unit = 64 pts, fits 7 dgms
-const XYRect HTMLStreamDgmr::sPSPageSize(40, 40, 572, 752);  // printable area on the page
-
-
-/*****
-Constructor
-*****/
-HTMLStreamDgmr::HTMLStreamDgmr(ostream& os) :
-   mStream(&os),
-   mPSPageCount(0)
-{
-}
-
-/*****
-Make the HTML header
-*****/
-void HTMLStreamDgmr::MakeHeader(){
-  (*mStream)<<"<!DOCTYPE html>\n<html>\n<head>\n  <svg width=\"0\" height=\"0\">\n    <defs>\n        <marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"10\" refX=\"9\" refY=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\">\n"
-  "        <path d=\"M0,0 L9,3 L0,6\" stroke=\"green\" fill=\"none\"/>\n        </marker>\n        <marker id=\"unfold_arrow\" markerWidth=\"10\" markerHeight=\"10\" refX=\"0\" refY=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\">"
-  "        <path d=\"M0,3 L9,0 L9,6 z\" stroke=\"green\" fill=\"#fd7\" stroke-linejoin=\"round\" />\n        </marker>\n      </defs>\n"
-  "  </svg>\n</head>\n<body>";
-}
-
-/*****
-Stream output for a SVG point TODO: make redundant
-*****/
-ostream& operator<<(ostream& os, const HTMLStreamDgmr::SVGPt& pp)
-{
-  return os << pp.px << " " << pp.py;
-}
-
-/*****
-Set the current graphics state to the given PointStyle.
-*****/
-void HTMLStreamDgmr::SetPointStyle(PointStyle pstyle)
-{
-  switch (pstyle) {
-    case POINTSTYLE_NORMAL:
-      (*mStream) << "stroke=\"black\" stroke-width=\"1\"" << endl;
-      break;
-    case POINTSTYLE_HILITE:
-      (*mStream) << "stroke=\"rgb(128,64,64)\" stroke-width=\"3\""<< endl;
-      break;
-    case POINTSTYLE_ACTION:
-      (*mStream) << "stroke=\"rgb(128,0,0)\" stroke-width=\"3\"" << endl;
-      break;
-  }
-}
-
-
-/*****
-Set the current graphics state to the given LineStyle
-*****/
-void HTMLStreamDgmr::SetLineStyle(LineStyle lstyle)
-{
-  switch (lstyle) {
-    case LINESTYLE_CREASE:
-      (*mStream) << "stroke=\"darkgray\" stroke-width=\".5\"" << endl;
-      break;
-    case LINESTYLE_EDGE:
-      (*mStream) << "stroke=\"black\" stroke-width=\"2\"" << endl;
-      break;
-    case LINESTYLE_HILITE:
-      (*mStream) << "stroke=\"darkmagenta\" stroke-width=\"2\"" << endl;
-      break;
-    case LINESTYLE_VALLEY:
-      (*mStream) << "stroke=\"green\" stroke-width=\".5\" stroke-dasharray=\"2\"" << endl;
-      break;
-    case LINESTYLE_MOUNTAIN:
-      (*mStream) << "stroke=\"green\" stroke-width=\".5\" stroke-dasharray=\"3 2 2 2\""<<endl;
-      break;
-    case LINESTYLE_ARROW:
-      (*mStream) << "stroke=\"darkgreen\" stroke-width=\".5\"" << endl;
-      break;
-  }
-}
-
-
-/*****
-Set the current graphics state to the given PolyStyle
-*****/
-void HTMLStreamDgmr::SetPolyStyle(PolyStyle pstyle)
-{
-  switch (pstyle) {
-    case POLYSTYLE_WHITE:
-      (*mStream) << "fill=\"#fd9\"";
-      break;
-    case POLYSTYLE_COLORED:
-      (*mStream) << "fill=\"darkblue\"";
-      break;
-    case POLYSTYLE_ARROW:
-      (*mStream) << "fill=\"green\"";
-      break;
-  }
-}
-
-
-/*****
-Set the current graphics state to the given LabelStyle
-*****/
-void HTMLStreamDgmr::SetLabelStyle(LabelStyle lstyle)
-{
-  switch (lstyle) {
-    case LABELSTYLE_NORMAL:
-      (*mStream) << "0 setgray " << endl;
-      break;
-    case LABELSTYLE_HILITE:
-      (*mStream) << ".5 .25 .25 setrgbcolor " << endl;
-      break;
-    case LABELSTYLE_ACTION:
-      (*mStream) << ".5 0 0 setrgbcolor " << endl;
-      break;
-  }
-}
-
-
-/*****
-Coordinate conversion
-*****/
-HTMLStreamDgmr::SVGPt HTMLStreamDgmr::ToSVG(const XYPt& aPt)
-{
-  return SVGPt(mSVGOrigin.x + SVGUnit * aPt.x, mSVGOrigin.y + SVGUnit * aPt.y);
-}
-
-/****
-Draw a fold-andunfold arrow
-****/
-void  HTMLStreamDgmr::DrawFoldAndUnfoldArrow(const XYPt& fromPt, const XYPt& toPt)
-{
-  SVGPt fPt = ToSVG(fromPt);
-  SVGPt tPt = ToSVG(toPt);
-  //TODO: make this a nice curved arrow
-  XYPt mp = MidPoint(fromPt,toPt);
-  XYPt mu = fromPt-toPt;
-  XYPt mup = 0.3 * mu.Rotate90();  // vector from midpt to center of curvature
-  
-  // Compute the control point. There are two possible choices.
-  // We'll want the bulge of the arc to always be toward the inside of the square,
-  // i.e., closer to the middle of the square, so we pick the value of the point
-  // that's closest.
-  XYPt sqmp = MidPoint(ReferenceFinder::sPaper.mBotLeft, 
-    ReferenceFinder::sPaper.mTopRight);
-  XYPt cp1 = mp + mup;
-  XYPt cp2 = mp - mup;
-  XYPt cp = (cp1 - sqmp).Mag() < (cp2 - sqmp).Mag() ? cp1 : cp2;
-  // mp-=mu.Rotate90()*.25;
-  SVGPt cPt = ToSVG(cp);
-  (*mStream) << "<path d=\"M "<<fPt.px<<" "<<fPt.py<<"Q "<<cPt.px<<" "<<cPt.py<<" "<<tPt.px<<" "<<tPt.py
-    <<"\" fill=\"none\" stroke=\"green\" stroke-width=\"1\""
-    <<"marker-start=\"url(#unfold_arrow)\" marker-end=\"url(#arrow)\"/>"<<endl;
-}
-
-/*****
-Draw an SVG point in the indicated style.
-*****/
-void HTMLStreamDgmr::DrawPt(const XYPt& aPt, PointStyle pstyle)
-{
-  SVGPt sPt = ToSVG(aPt);
-  (*mStream) << "<circle r=\"1\" cx=\""<<sPt.px<<"\" cy=\""<<sPt.py<<"\"";
-  SetPointStyle(pstyle);
-  (*mStream) << "/>"<<endl;
-}
-
-
-/*****
-Draw a SVG line in the indicated style.
-*****/
-void HTMLStreamDgmr::DrawLine(const XYPt& fromPt, const XYPt& toPt, 
-  LineStyle lstyle)
-{
-  SVGPt fPt = ToSVG(fromPt);
-  SVGPt tPt = ToSVG(toPt);
-  (*mStream) << "<line x1=\""<<fPt.px<<"\" y1=\""<<fPt.py<<"\" x2=\""<<tPt.px<<"\" y2=\""<<tPt.py<<"\"";
-  SetLineStyle(lstyle);
-  (*mStream) << "/>";
-}
-
-
-/*****
-Fill and stroke the given poly in the indicated style.
-*****/
-void HTMLStreamDgmr::DrawPoly(const vector<XYPt>& poly, PolyStyle pstyle)
-{
-  (*mStream) << "<path d=\"M" << ToSVG(poly[poly.size()-1]);
-  for (size_t i = 0; i < poly.size(); i++)
-    (*mStream) << " L "<< ToSVG(poly[i]);
-  (*mStream) << "\"";
-
-  // Fill the poly
-  SetPolyStyle(pstyle);
-  // (*mStream) << "fill grestore " << endl;
-  
-  // Stroke the poly
-  switch (pstyle) {
-    case POLYSTYLE_WHITE:
-    case POLYSTYLE_COLORED:
-      SetLineStyle(LINESTYLE_EDGE);
-      break;
-    case POLYSTYLE_ARROW:
-      SetLineStyle(LINESTYLE_ARROW);
-      break;
-  };
-  (*mStream) << "/>" << endl;
-}
-
-
-/*****
-Draw a text label at the point aPt in the indicated style
-*****/
-void HTMLStreamDgmr::DrawLabel(const XYPt& aPt, const std::string& aString, LabelStyle lstyle)
-{
-  // SetLabelStyle(lstyle);
-  SVGPt sPt = ToSVG(aPt);
-  (*mStream)<<"<text x=\""<<sPt.px<<"\" y=\""<<sPt.py<<"\">"<<aString<<"</text>"<<endl;
-}
-
-
-/*****
-newline
-*****/
-
-void HTMLStreamDgmr::NewLine()
-{
-  
-  (*mStream)<<"</p>\n<p>";
-}
-
-/*****
-Draw a set of marks or lines to a PostScript stream, showing distance and rank
-for each sequence.
-*****/
-template <class R>
-void HTMLStreamDgmr::PutRefList(const typename R::bare_t& ar, vector<R*>& vr)
-{
-  ReferenceFinder::sClarifyVerbalAmbiguities = false;
-  ReferenceFinder::sAxiomsInVerbalDirections = false;
-
-  // Put some comments so our readers are happy 
-  MakeHeader();
-  (*mStream) << "/Times-Roman findfont 12 scalefont setfont" << endl;
-  // (*mStream) << "0 setgray" << endl;
-  NewLine();
-  (*mStream)<<"ReferenceFinder 4.0 by Robert J. Lang";
-  
-  // Note the point we're searching for.
-  (*mStream) << "/Times-Roman findfont 9 scalefont setfont" << endl;
-  NewLine();
-  stringstream targstr;
-  targstr << "Paper: \\(" << ReferenceFinder::sPaper.mWidthAsText.c_str()
-	  << " x " << ReferenceFinder::sPaper.mHeightAsText.c_str()
-	  << "\\), Target: " << ar;
-  // DrawLabel(targstr.str(), LABELSTYLE_NORMAL);
-  
-  // Go through our list and draw all the diagrams in a single row. 
-  for (size_t irow = 0; irow < vr.size(); irow++) {
-    NewLine();
-    vr[irow]->BuildDiagrams();
-    mSVGOrigin.x = sPSPageSize.bl.x;
-    for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-      RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
-      mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
-    };
-    
-    // Also put the text description below the diagrams   
-    mSVGOrigin.x = sPSPageSize.bl.x;
-    NewLine();
-    ostringstream sd;
-    vr[irow]->PutDistanceAndRank(sd, ar);
-    // DrawLabel(sd.str(), LABELSTYLE_NORMAL);
-    for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
-      mSVGOrigin.x = sPSPageSize.bl.x;
-      ostringstream s;
-      if (RefBase::sSequence[i]->PutHowto(s)) {
-        NewLine();
-        s << ".";
-        // DrawLabel(s.str(), LABELSTYLE_NORMAL);
-      }
-    }
-  }
-  
-  // Close the file.  
-  (*mStream) << "showpage" << endl;
-  (*mStream) << "%%Trailer" << endl;
-  (*mStream) << "%%Pages: " << mPSPageCount << endl;
-}
-
-/*****
-Specialized version for division into nths
-Draw a set of marks or lines to a PostScript stream, showing distance and rank
-for each sequence.
-*****/
-void HTMLStreamDgmr::PutDividedRefList(int total, vector<pair<int,RefLine*>> vls)
-{
-  ReferenceFinder::sClarifyVerbalAmbiguities = false;
-  ReferenceFinder::sAxiomsInVerbalDirections = false;
-
-  // Put some initial setup information 
-  MakeHeader();
-  (*mStream) << "ReferenceFinder 4.0 by Robert J. Lang, hacky divisionfinder version by Joep Gevaert";
-  
-  // Note the point we're searching for.
-  // (*mStream) << "/Times-Roman findfont 9 scalefont setfont" << endl;
-  NewLine();
-  stringstream targstr;
-  targstr << "Paper: (" << ReferenceFinder::sPaper.mWidthAsText.c_str()
-	  << " x " << ReferenceFinder::sPaper.mHeightAsText.c_str()
-	  << "), Target: " << total;
-  // DrawLabel(targstr.str(), LABELSTYLE_NORMAL);
-  
-  // Go through our list and draw all the diagrams in a single row. 
-  (*mStream) <<"<svg height=\""<<SVGUnit*ReferenceFinder::sPaper.mHeight*1.2<<"px\" width=\""<<10*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2<<"px\">";
-  for (size_t irow = 0; irow < 2; irow++) {
-    XYLine ar(double(vls[irow].first)/double(total));
-    // vector<int> cycle = find_cycle(total,vls[irow].first);
-    // NewLine();
-    vls[irow].second->BuildDiagrams();
-    mSVGOrigin.x = 25;
-    mSVGOrigin.y = 25;
-    for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-      RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
-      mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
-    };
-    (*mStream) << "</svg>";
-    // Also put the text description below the diagrams   
-
-    NewLine();
-    (*mStream) << "Found a solution for: " << vls[irow].first << "/" << total << endl;
-    NewLine();
-    vls[irow].second->PutDistanceAndRank(*mStream, ar);
-    
-    for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
-      if (RefBase::sSequence[i]->PutHowto(*mStream)) {
-        NewLine();
-      }
-    }
-    // NewLine();
-    RefLine* vr = new RefLine(ReferenceFinder::FoldCycles(vls[irow].first,total,vls[irow].second->mRank));
-    vr->BuildDiagrams(false);
-    mSVGOrigin.x = 0;
-    mSVGOrigin.y = 25;
-    size_t cols = 10;
-    size_t rows = total/cols+1;
-    (*mStream) << "<svg width=\""<<(cols-.2)*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2+50<<"px\" height=\""<<rows*SVGUnit*ReferenceFinder::sPaper.mHeight*1.2+50<<"px\">"<<endl;
-    for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-      RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
-      if(icol%cols!=cols-1) {
-        mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
-      } else {
-        mSVGOrigin.x = 0;
-        mSVGOrigin.y += 1.2 * ReferenceFinder::sPaper.mHeight * SVGUnit;
-      }
-    }
-    (*mStream) << "</svg>" << endl;
-    // Also put the text description below the diagrams   
-    NewLine();
-    for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
-      if (RefBase::sSequence[i]->PutHowto(*mStream)) {
-        NewLine();
-      }
-    }
-  // DrawLabel(XYPt(0),"poep", LABELSTYLE_HILITE);
-  }
-  
-  
-
-  // Close the file.  
-  (*mStream)<<"</body>\n</html>"<<endl;
-
-}
-
-/*****
-Write the PostScript code that draws folding sequences for a list of marks.
-*****/
-
-void HTMLStreamDgmr::PutMarkList(const XYPt& pp, vector<RefMark*>& vm)
-{
-  PutRefList(pp, vm);
-}
-
-
-/*****
-Write the PostScript code that draws folding sequences for a list of lines.
-*****/
-void HTMLStreamDgmr::PutLineList(const XYLine& ll, vector<RefLine*>& vl)
 {
   PutRefList(ll, vl);
 }

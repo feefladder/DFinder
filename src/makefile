@@ -14,7 +14,7 @@ PROGRAM=$(EXEDIR)/ReferenceFinder.exe
 # Optional objects (depend on CALCINPUT)
 OPTOBJS = parser.o lexer.o
 
-OBJS = ReferenceFinder.o ReferenceFinder_console.o FindDivisions.o $(OPTOBJS)
+OBJS = ReferenceFinder.o ReferenceFinder_console.o FindDivisions.o HTMLStreamDgmr.o $(OPTOBJS)
 
 # Main rule
 $(PROGRAM): $(OBJS)
@@ -23,6 +23,8 @@ ReferenceFinder.o: ReferenceFinder.cpp ReferenceFinder.h
 	$(CC) $(CFLAGS) -c ReferenceFinder.cpp
 ReferenceFinder_console.o: ReferenceFinder_console.cpp ReferenceFinder.h parser.h
 	$(CC) $(CFLAGS) -c ReferenceFinder_console.cpp
+HTMLStreamDgmr.o: HTMLStreamDgmr.cpp HTMLStreamDgmr.h ReferenceFinder.h
+	$(CC) $(CFLAGS) -c HTMLStreamDgmr.cpp
 
 FindDivisions.o: FindDivisions.cpp FindDivisions.h
 	$(CC) $(CFLAGS) -c FindDivisions.cpp
