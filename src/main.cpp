@@ -1,4 +1,12 @@
 #include <pybind11/pybind11.h>
+#include "ReferenceFinder_console.h"
+// #include "ReferenceFinder.cpp"
+// #include "ReferenceFinder.h"
+// #include "FindDivisions.cpp"
+// #include "FindDivisions.h"
+// #include "parser.cpp"
+// #include "lexer.cpp"
+// #include "lexer.h"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -9,7 +17,7 @@ int add(int i, int j) {
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(python_example, m) {
+PYBIND11_MODULE(dfinder, m) {
     m.doc() = R"pbdoc(
         Pybind11 example plugin
         -----------------------
@@ -34,6 +42,10 @@ PYBIND11_MODULE(python_example, m) {
 
         Some other explanation about the subtract function.
     )pbdoc");
+
+    m.def("InitializeSquare",  &InitializeSquare,  "Initialize a square of paper");
+    m.def("CalcDivisionsHTML", &CalcDivisionsHTML, "Calculate divisions for a square");
+
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
