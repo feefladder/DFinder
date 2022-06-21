@@ -335,7 +335,7 @@ public:
   void BuildAndNumberSequence();
   
   // routine for creating a text description of how to fold a ref
-  virtual const char GetLabel() const = 0;
+  virtual const std::string GetLabel() const = 0;
   virtual bool PutName(std::ostream& os) const = 0;
   virtual bool PutHowto(std::ostream& os) const;
   std::ostream& PutHowtoSequence(std::ostream& os);
@@ -382,7 +382,7 @@ public:
   bool IsOnEdge() const;    
   bool IsActionLine() const;
 
-  const char GetLabel() const;
+  const std::string GetLabel() const;
   bool PutName(std::ostream& os) const;
   void PutDistanceAndRank(std::ostream& os, const XYPt& ap) const;
   void DrawSelf(RefStyle rstyle, short ipass) const;
@@ -409,7 +409,7 @@ private:
 public:
   RefMark_Original(const XYPt& ap, rank_t arank, std::string aName);
 
-  const char GetLabel() const;
+  const std::string GetLabel() const;
   bool PutName(std::ostream& os) const;
   void DrawSelf(RefStyle rstyle, short ipass) const;
   
@@ -459,7 +459,7 @@ public:
   bool IsOnEdge() const;
   bool IsActionLine() const;
 
-  const char GetLabel() const;
+  const std::string GetLabel() const;
   bool PutName(std::ostream& os) const;
   void PutDistanceAndRank(std::ostream& os, const XYLine& al) const;
   void DrawSelf(RefStyle rstyle, short ipass) const;
@@ -492,7 +492,7 @@ public:
   RefLine_Original(const XYLine& al, rank_t arank, std::string aName);
 
   bool IsActionLine() const;
-  const char GetLabel() const;
+  const std::string GetLabel() const;
   bool PutName(std::ostream& os) const;
   void DrawSelf(RefStyle rstyle, short ipass) const;
 
@@ -568,7 +568,7 @@ private:
 public: 
   RefLine_L2L(RefLine* arl1, RefLine* arl2, short iroot, std::string aName);
   
-  const char GetLabel() const;
+  const std::string GetLabel() const;
 
   bool UsesImmediate(RefBase* rb) const;
   void SequencePushSelf();

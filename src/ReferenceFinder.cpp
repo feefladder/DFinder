@@ -1055,9 +1055,9 @@ bool RefMark::IsActionLine() const
 /*****
 Return the label for this mark.
 *****/
-const char RefMark::GetLabel() const
+const std::string RefMark::GetLabel() const
 {
-  return sLabels[mIndex - 1];
+  return std::string(sLabels[mIndex - 1],1);
 }
 
 
@@ -1113,20 +1113,20 @@ void RefMark::DrawSelf(RefStyle rstyle, short ipass) const
       
     case PASS_LABELS:
       {
-      string sm(1, GetLabel());
-      std::cout<<"drawing labels!"<<endl;
+      // string sm(1, GetLabel());
+      // std::cout<<"drawing labels!"<<endl;
       switch(rstyle) {
         case REFSTYLE_NORMAL:
-          std::cout<<"just joking!"<<endl;
+          // std::cout<<"just joking!"<<endl;
           // Normal points don't get labels drawn
           break;
         case REFSTYLE_HILITE:
-          std::cout<<"hilight label"<<endl;
-          sDgmr->DrawLabel(p, sm, RefDgmr::LABELSTYLE_HILITE);
+          // std::cout<<"hilight label"<<endl;
+          sDgmr->DrawLabel(p, GetLabel(), RefDgmr::LABELSTYLE_HILITE);
           break;
         case REFSTYLE_ACTION:
-          std::cout<<"action label"<<endl;
-          sDgmr->DrawLabel(p, sm, RefDgmr::LABELSTYLE_ACTION);
+          // std::cout<<"action label"<<endl;
+          sDgmr->DrawLabel(p, GetLabel(), RefDgmr::LABELSTYLE_ACTION);
           break;
       };
       break;
@@ -1177,9 +1177,9 @@ RefMark_Original::RefMark_Original(const XYPt& ap, rank_t arank, string aName) :
 /*****
 Return the label for this mark.
 *****/
-const char RefMark_Original::GetLabel() const
+const std::string RefMark_Original::GetLabel() const
 {
-  return 0; // originals get no labels
+  return mName; // originals get no labels
 }
 
 
@@ -1431,14 +1431,14 @@ bool RefLine::IsActionLine() const
 /*****
 Return the label for this line.
 *****/
-const char RefLine::GetLabel() const
+const std::string RefLine::GetLabel() const
 {
-  return sLabels[mIndex - 1];
+  return std::string(sLabels[mIndex - 1],1);
 }
 
-const char RefLine_L2L::GetLabel() const
+const std::string RefLine_L2L::GetLabel() const
 {
-  return this->mName.empty() ? RefLine::GetLabel() : mName.front();
+  return this->mName.empty() ? RefLine::GetLabel() : mName;
 }
 
 /*****
@@ -1519,16 +1519,16 @@ void RefLine::DrawSelf(RefStyle rstyle, short ipass) const
     case PASS_LABELS:
       {
         XYPt mp = MidPoint(p1, p2); // label goes at the midpoint of the line
-        string sl(1, GetLabel());
+        // string sl(1, GetLabel());
         switch (rstyle) {
           case REFSTYLE_NORMAL:
             // normal lines don't get labels
             break;
           case REFSTYLE_HILITE:
-            sDgmr->DrawLabel(mp, sl, RefDgmr::LABELSTYLE_HILITE);
+            sDgmr->DrawLabel(mp, GetLabel(), RefDgmr::LABELSTYLE_HILITE);
             break;
           case REFSTYLE_ACTION:
-            sDgmr->DrawLabel(mp, sl, RefDgmr::LABELSTYLE_ACTION);
+            sDgmr->DrawLabel(mp, GetLabel(), RefDgmr::LABELSTYLE_ACTION);
             break;
           default: ;// keep compiler happy
         }
@@ -1593,9 +1593,9 @@ bool RefLine_Original::IsActionLine() const
 /*****
 Return the label for this line.
 *****/
-const char RefLine_Original::GetLabel() const
+const std::string RefLine_Original::GetLabel() const
 {
-  return 0; // originals get no label
+  return mName; // originals get no label
 }
 
 
@@ -4401,7 +4401,7 @@ void HTMLStreamDgmr::PutDividedRefList(int total, vector<pair<int,RefLine*>> vls
   
   // Go through our list and draw all the diagrams in a single row. 
   (*mStream) <<"<svg height=\""<<SVGUnit*ReferenceFinder::sPaper.mHeight*1.2<<"px\" width=\""<<10*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2<<"px\">";
-  for (size_t irow = 0; irow < 1; irow++) {
+  for (size_t irow = 0; irow < 2; irow++) {
     XYLine ar(double(vls[irow].first)/double(total));
     // vector<int> cycle = find_cycle(total,vls[irow].first);
     // NewLine();
