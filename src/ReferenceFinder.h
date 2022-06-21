@@ -989,21 +989,16 @@ CompareRankAndErrorDivision(int total) : mTotal(total) {};
   bool operator()(std::pair<int,R*> r1, std::pair<int,R*> r2) const {
     XYLine l1(double(r1.first)/double(mTotal));
     XYLine l2(double(r2.first)/double(mTotal));
-    // std::cout << "still doing ok?\n";
     // Compare the distances from the stored target. If both distances are less
     // than or equal to sGoodEnoughError, compare the refs by their rank.
-    // std::cout << "still doing ok?\n";
     double d1 = r1.second->DistanceTo(l1);
     double d2 = r2.second->DistanceTo(l2);
-    // std::cout << "still doing ok?\n";
     if ((d1 > ReferenceFinder::sGoodEnoughError) || 
       (d2 > ReferenceFinder::sGoodEnoughError)) {
-        // std::cout << "still doing ok?\n";
       if (d1 == d2) return r1.second->mRank < r2.second->mRank; 
       else return d1 < d2;
     }
     else {
-      // std::cout << "still doing ok?\n";
       if (r1.second->mRank == r2.second->mRank) return d1 < d2;
       else return r1.second->mRank < r2.second->mRank;
     }

@@ -26,39 +26,39 @@ using namespace std;
 #endif
 
 
-// #if CALCINPUT
-// #include "parser.h"
-// // Parser parser;
-// /*****
-// Get a number from the user via the expression evaluator
-// *****/
-// static void ReadNumber(double& n, bool assumeDefault = true)
-// {
-//   // Read a string from console, parse a numerical expression and save result
-//   // in parameter. Loop until a valid expression is entered. Abort if user ends
-//   // input. At present, double ReadNumber (void) would be enough; we could
-//   // generalize it to boolean ReadNumber (double &) and let user abort without
-//   // entering a valid expression.
-//   string buffer;  // text read here
-//   for ( ; ! cin.eof (); ) {
-//     getline (cin, buffer);
-//     Parser::Status st = parser.evaluate (buffer, n, assumeDefault);
-//     if (! st.isOK ())
-//       cerr << "  Error (" << st << "), try again: ";
-//     else
-//       break;
-//   }
-//   if (cin.eof ())
-//     exit (0);
-// }
-// #else
-// /*****
-// Get a number from the user via standard input cin.
-// *****/
-// static void ReadNumber (double& n, bool assumeDefault = true) {
-//   cin >> n;
-// }
-// #endif // CALCINPUT
+#if CALCINPUT
+#include "parser.h"
+Parser parser;
+/*****
+Get a number from the user via the expression evaluator
+*****/
+static void ReadNumber(double& n, bool assumeDefault = true)
+{
+  // Read a string from console, parse a numerical expression and save result
+  // in parameter. Loop until a valid expression is entered. Abort if user ends
+  // input. At present, double ReadNumber (void) would be enough; we could
+  // generalize it to boolean ReadNumber (double &) and let user abort without
+  // entering a valid expression.
+  string buffer;  // text read here
+  for ( ; ! cin.eof (); ) {
+    getline (cin, buffer);
+    Parser::Status st = parser.evaluate (buffer, n, assumeDefault);
+    if (! st.isOK ())
+      cerr << "  Error (" << st << "), try again: ";
+    else
+      break;
+  }
+  if (cin.eof ())
+    exit (0);
+}
+#else
+/*****
+Get a number from the user via standard input cin.
+*****/
+static void ReadNumber (double& n, bool) {
+  cin >> n;
+}
+#endif // CALCINPUT
 
 
 /*****
@@ -160,8 +160,6 @@ void OpenFile(string& fileName, fstream& fout, string ftype = "ps")
 }
 
 std::string CalcDivisionsHTML(int total){
-  // ReferenceFinder::MakeAllMarksAndLines();
-  while (total%2==0){total=total/2;} // the algorithm breaks for multiples of 2
   cout<<"finding refences for: " << total << endl;
   vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that 
   vector<pair<int,RefLine*>> vls;
@@ -176,170 +174,162 @@ std::string CalcDivisionsHTML(int total){
       }
     }
   }
-  std::cout << "found " << vls.size() << " solutions!\n";
   sort(vls.begin(),vls.end(),CompareRankAndErrorDivision<RefLine>(total));
-  std::cout << "sorted!\n";
   std::ostringstream out;
   HTMLStreamDgmr hdgmr(out);
   hdgmr.PutDividedRefList(total,vls);
   return out.str();
 }
 
-void InitializeSquare () {
-  ReferenceFinder::SetDatabaseFn(&ConsoleDatabaseProgress);
-  ReferenceFinder::SetStatisticsFn(&ConsoleStatisticsProgress);
-  ReferenceFinder::MakeAllMarksAndLines();
-}
-
 /******************************
 Main program loop
 ******************************/
-// int main()
-// { 
-//   // cout << APP_V_M_B_NAME_STR << " (build " << BUILD_CODE_STR << ")" << endl;
-//   cout << "Copyright (c)1999-2006 by Robert J. Lang. All rights reserved." << endl;
+int main()
+{ 
+  // cout << APP_V_M_B_NAME_STR << " (build " << BUILD_CODE_STR << ")" << endl;
+  cout << "Copyright (c)1999-2006 by Robert J. Lang. All rights reserved." << endl;
   
-//   VerbalStreamDgmr vsdgmr(cout);
-//   ReferenceFinder::SetDatabaseFn(&ConsoleDatabaseProgress);
-//   ReferenceFinder::SetStatisticsFn(&ConsoleStatisticsProgress);
-//   ReferenceFinder::MakeAllMarksAndLines();
+  VerbalStreamDgmr vsdgmr(cout);
+  ReferenceFinder::SetDatabaseFn(&ConsoleDatabaseProgress);
+  ReferenceFinder::SetStatisticsFn(&ConsoleStatisticsProgress);
+  ReferenceFinder::MakeAllMarksAndLines();
 
-//   //  Loop forever until the user quits from the menu.
-//   while (true) {
-//     cout << "0 = exit, 1 = find mark, 2 = find line, 3 = divide paper into n divisions: ";
-//     double ns;
-//     ReadNumber(ns, false);
+  //  Loop forever until the user quits from the menu.
+  while (true) {
+    cout << "0 = exit, 1 = find mark, 2 = find line, 3 = divide paper into n divisions: ";
+    double ns;
+    ReadNumber(ns, false);
 
-//     switch (int(ns)) {
-//       case 0: {
-//         exit(1);
-//         break;
-//       }
-//       case 1: {
-//         XYPt pp(0, 0);  
-//         cout << endl << "Enter x coordinate: ";
-//         ReadNumber (pp.x);
-//         cout << "Enter y coordinate: ";
-//         ReadNumber (pp.y);
-//         string err;
-//         if (ReferenceFinder::ValidateMark(pp, err)) {
-//           vector<RefMark*> vm;
-//           ReferenceFinder::FindBestMarks(pp, vm, 5);
+    switch (int(ns)) {
+      case 0: {
+        exit(1);
+        break;
+      }
+      case 1: {
+        XYPt pp(0, 0);  
+        cout << endl << "Enter x coordinate: ";
+        ReadNumber (pp.x);
+        cout << "Enter y coordinate: ";
+        ReadNumber (pp.y);
+        string err;
+        if (ReferenceFinder::ValidateMark(pp, err)) {
+          vector<RefMark*> vm;
+          ReferenceFinder::FindBestMarks(pp, vm, 5);
           
-//           // Write verbal directions to the console
-//           vsdgmr.PutMarkList(pp, vm);
+          // Write verbal directions to the console
+          vsdgmr.PutMarkList(pp, vm);
           
-//           // Also draw Postscript directions to a file
-//           string fileName;
-//           fstream fout;
-//           OpenFile(fileName, fout);
-//           PSStreamDgmr pdgmr(fout);
-//           pdgmr.PutMarkList(pp, vm);
-//           fout.close();
-//           cout << "Diagrams in <" << fileName << ">." << endl;
-//         }
-//         else 
-//           cout << err << endl;
-//         break;
-//       }
-//       case 2: {
-//         XYPt p1, p2;
-//         // cout << endl << "Enter p1 x coordinate: ";
-//         // ReadNumber (p1.x);
-//         // cout << "Enter p1 y coordinate: ";
-//         // ReadNumber (p1.y);
-//         // cout << endl << "Enter p2 x coordinate: ";
-//         // ReadNumber (p2.x);
-//         // cout << "Enter p2 y coordinate: ";
-//         // ReadNumber (p2.y);
-//         double d;
-//         ReadNumber(d);
-//         p1.x = 0;
-//         p2.x=1;
-//         p1.y=p2.y=d;
-//         string err;
-//         if (ReferenceFinder::ValidateLine(p1, p2, err)) {
-//           XYLine ll(p1, p2);
-//           vector<RefLine*> vl;
-//           ReferenceFinder::FindBestLines(ll, vl, 20);
+          // Also draw Postscript directions to a file
+          string fileName;
+          fstream fout;
+          OpenFile(fileName, fout);
+          PSStreamDgmr pdgmr(fout);
+          pdgmr.PutMarkList(pp, vm);
+          fout.close();
+          cout << "Diagrams in <" << fileName << ">." << endl;
+        }
+        else 
+          cout << err << endl;
+        break;
+      }
+      case 2: {
+        XYPt p1, p2;
+        // cout << endl << "Enter p1 x coordinate: ";
+        // ReadNumber (p1.x);
+        // cout << "Enter p1 y coordinate: ";
+        // ReadNumber (p1.y);
+        // cout << endl << "Enter p2 x coordinate: ";
+        // ReadNumber (p2.x);
+        // cout << "Enter p2 y coordinate: ";
+        // ReadNumber (p2.y);
+        double d;
+        ReadNumber(d);
+        p1.x = 0;
+        p2.x=1;
+        p1.y=p2.y=d;
+        string err;
+        if (ReferenceFinder::ValidateLine(p1, p2, err)) {
+          XYLine ll(p1, p2);
+          vector<RefLine*> vl;
+          ReferenceFinder::FindBestLines(ll, vl, 20);
           
-//           // Write verbal directions to the console
-//           vsdgmr.PutLineList(ll, vl);
+          // Write verbal directions to the console
+          vsdgmr.PutLineList(ll, vl);
           
-//           // Also draw Postscript directions to a file
-//           string fileName;
-//           fstream fout;
-//           OpenFile(fileName, fout);
-//           PSStreamDgmr pdgmr(fout);
-//           pdgmr.PutLineList(ll, vl);
-//           fout.close();
-//           cout << "Diagrams in <" << fileName << ">." << endl;
-//         }
-//         else 
-//           cout << err << endl;
-//         break;
-//       }
-//       case 3: {
-//         cout << endl << "In  how many divisions do you want to divide your paper? ";
-//         size_t total;
-//         cin >> total;
-//         while (total%2==0){total=total/2;} // the algorithm breaks for multiples of 2
-//         cout<<"finding refences for: " << total << endl;
-//         vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that 
-//         vector<pair<int,RefLine*>> vls;
-//         for (auto cycle: cycles) {
-//           for (auto division: cycle) {
-//             string err;
-//             XYLine ll(double(division)/double(total));
-//             vector<RefLine*> vl;
-//             ReferenceFinder::FindBestLines(ll, vl, 5);
-//             for (auto l:vl){
-//               vls.push_back(make_pair(division,l));
-//             }
-//           }
-//         }
-//         sort(vls.begin(),vls.end(),CompareRankAndErrorDivision<RefLine>(total));
-//         for (int i=0;i<=3;i++){
-//           XYLine l(double(vls[i].first)/double(total));
-//           cout<<"Found a very efficient one! at "<< vls[i].first<<"/"<<total<<"with error: "<<vls[i].second->DistanceTo(l)<<endl;
-//         }
+          // Also draw Postscript directions to a file
+          string fileName;
+          fstream fout;
+          OpenFile(fileName, fout);
+          PSStreamDgmr pdgmr(fout);
+          pdgmr.PutLineList(ll, vl);
+          fout.close();
+          cout << "Diagrams in <" << fileName << ">." << endl;
+        }
+        else 
+          cout << err << endl;
+        break;
+      }
+      case 3: {
+        cout << endl << "In  how many divisions do you want to divide your paper? ";
+        size_t total;
+        cin >> total;
+        while (total%2==0){total=total/2;} // the algorithm breaks for multiples of 2
+        cout<<"finding refences for: " << total << endl;
+        vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that 
+        vector<pair<int,RefLine*>> vls;
+        for (auto cycle: cycles) {
+          for (auto division: cycle) {
+            string err;
+            XYLine ll(double(division)/double(total));
+            vector<RefLine*> vl;
+            ReferenceFinder::FindBestLines(ll, vl, 5);
+            for (auto l:vl){
+              vls.push_back(make_pair(division,l));
+            }
+          }
+        }
+        sort(vls.begin(),vls.end(),CompareRankAndErrorDivision<RefLine>(total));
+        for (int i=0;i<=3;i++){
+          XYLine l(double(vls[i].first)/double(total));
+          cout<<"Found a very efficient one! at "<< vls[i].first<<"/"<<total<<"with error: "<<vls[i].second->DistanceTo(l)<<endl;
+        }
 
-//         string fileName;
-//         fstream fout;
-//         OpenFile(fileName, fout);
-//         PSStreamDgmr pdgmr(fout);
-//         pdgmr.PutDividedRefList(total,vls);
-//         fout.close();
+        string fileName;
+        fstream fout;
+        OpenFile(fileName, fout);
+        PSStreamDgmr pdgmr(fout);
+        pdgmr.PutDividedRefList(total,vls);
+        fout.close();
         
-//         cout << "Diagrams in <" << fileName << ">." << endl;
-//         break;
-//       }
-//       case 4:{
-//         cout << endl << "In  how many divisions do you want to divide your paper? ";
-//         int total;
-//         cin >> total;
-//         while(total<=1){std::cout<<"please enter a number larger than 1: "; cin>>total;}
-//         while (total%2==0){total=total/2;} // the algorithm breaks for multiples of 2
-//         string fileName;
-//         fstream fout;
-//         OpenFile(fileName, fout, "html");
-//         fout << CalcDivisionsHTML(total);
-//         fout.close();
+        cout << "Diagrams in <" << fileName << ">." << endl;
+        break;
+      }
+      case 4:{
+        cout << endl << "In  how many divisions do you want to divide your paper? ";
+        int total;
+        cin >> total;
+        while(total<=1){std::cout<<"please enter a number larger than 1: "; cin>>total;}
+        while (total%2==0){total=total/2;} // the algorithm breaks for multiples of 2
+        string fileName;
+        fstream fout;
+        OpenFile(fileName, fout, "html");
+        fout << CalcDivisionsHTML(total);
+        fout.close();
         
-//         cout << "Diagrams in <" << fileName << ">." << endl;
-//         break;
-//       }
-//       case 99: {
-//         // hidden command to calculate statistics on marks & report results
-//         ReferenceFinder::CalcStatistics();
-//         break;
-//       }
-//       case -1:{
-//         return 0;
-//       }
-//       default:
-//         cout << "Enter just 0, 1 or 2, please.\n\n";
-//     }
-//   };
-//   return 0;
-// }
+        cout << "Diagrams in <" << fileName << ">." << endl;
+        break;
+      }
+      case 99: {
+        // hidden command to calculate statistics on marks & report results
+        ReferenceFinder::CalcStatistics();
+        break;
+      }
+      case -1:{
+        return 0;
+      }
+      default:
+        cout << "Enter just 0, 1 or 2, please.\n\n";
+    }
+  };
+  return 0;
+}

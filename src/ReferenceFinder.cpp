@@ -11,8 +11,6 @@ Copyright:    �1999-2007 Robert J. Lang. All Rights Reserved.
 #include "ReferenceFinder.h"
 #include "FindDivisions.h"
 
-#include <unistd.h>
-
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -56,7 +54,7 @@ bool ReferenceFinder::sUseRefLine_L2L_P2L = true;
 
 // Maximum rank and number of marks and lines to collect. These can be tweaked
 // up or down to trade off accuracy versus memory and initialization time.
-ReferenceFinder::rank_t ReferenceFinder::sMaxRank = 6;
+ReferenceFinder::rank_t ReferenceFinder::sMaxRank = 4;
 size_t ReferenceFinder::sMaxLines = 5000000;
 size_t ReferenceFinder::sMaxMarks = 500000;
 
@@ -665,18 +663,11 @@ bool Paper::ClipLine(const XYLine& al, XYPt& ap1, XYPt& ap2) const
   XYPt ipts[4];       // list of points of intersection
   XYPt p;           // a scratch pad for intersection points
   
-  // std::cout << "still doing ok? almost calced intersects\n";
-
-  sleep(1);
-
   if (mTopEdge.Intersects(al, p) && Encloses(p)) ipts[npts++] = p;
   if (mLeftEdge.Intersects(al, p) && Encloses(p)) ipts[npts++] = p;
   if (mRightEdge.Intersects(al, p) && Encloses(p)) ipts[npts++] = p;
   if (mBottomEdge.Intersects(al, p) && Encloses(p)) ipts[npts++] = p;
-
-  // std::cout << "still doing ok? calced intersects\n";
-  sleep(1);
-
+  
   if (npts == 0) return false;  // line entirely misses the paper
 
   // Now parameterize all four points along the line, recording the minimum
@@ -1397,16 +1388,13 @@ double RefLine::DistanceTo(const XYLine& al) const
     // Use the worst-case separation between the endpoints of the two lines
     // where they leave the paper.
     XYPt p1a, p1b, p2a, p2b;
-    // std::cout << "still doing ok? DistanceTo\n";
     if (ReferenceFinder::sPaper.ClipLine(l, p1a, p1b) && 
       ReferenceFinder::sPaper.ClipLine(al, p2a, p2b)) {
-      // std::cout << "still doing ok? intersectpaper\n";
       double err1 = max_val((p1a - p2a).Mag(), (p1b - p2b).Mag());
       double err2 = max_val((p1a - p2b).Mag(), (p1b - p2a).Mag());
       return min_val(err1, err2);
     }
     else {
-      // std::cout << "still doing ok? nointersect\n";
       return 1 / EPS; // lines don't intersect the paper, return very large number
     }
   }
@@ -4401,7 +4389,7 @@ void HTMLStreamDgmr::PutDividedRefList(int total, vector<pair<int,RefLine*>> vls
   // Put some initial setup information 
   MakeHeader();
   (*mStream) << "ReferenceFinder 4.0 by Robert J. Lang, hacky divisionfinder version by Joep Gevaert";
-
+  
   // Note the point we're searching for.
   // (*mStream) << "/Times-Roman findfont 9 scalefont setfont" << endl;
   NewLine();
@@ -4411,8 +4399,7 @@ void HTMLStreamDgmr::PutDividedRefList(int total, vector<pair<int,RefLine*>> vls
 	  << "), Target: " << total;
   // DrawLabel(targstr.str(), LABELSTYLE_NORMAL);
   
-  // Go through our list and draw all the diagrams in a single row
-  // This draws the diagram of how to draw the reference point
+  // Go through our list and draw all the diagrams in a single row. 
   (*mStream) <<"<svg height=\""<<SVGUnit*ReferenceFinder::sPaper.mHeight*1.2<<"px\" width=\""<<10*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2<<"px\">";
   for (size_t irow = 0; irow < 1; irow++) {
     XYLine ar(double(vls[irow].first)/double(total));
