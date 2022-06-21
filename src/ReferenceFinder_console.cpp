@@ -161,6 +161,7 @@ void OpenFile(string& fileName, fstream& fout, string ftype = "ps")
 }
 
 std::string CalcDivisionsHTML(int total){
+  while (!total%2){total = total/2;}
   cout<<"finding refences for: " << total << endl;
   vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that 
   vector<pair<int,RefLine*>> vls;
