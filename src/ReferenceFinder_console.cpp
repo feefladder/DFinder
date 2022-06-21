@@ -181,6 +181,12 @@ std::string CalcDivisionsHTML(int total){
   return out.str();
 }
 
+void InitializeSquare() {
+  ReferenceFinder::SetDatabaseFn(&ConsoleDatabaseProgress);
+  ReferenceFinder::SetStatisticsFn(&ConsoleStatisticsProgress);
+  ReferenceFinder::MakeAllMarksAndLines();
+}
+
 /******************************
 Main program loop
 ******************************/
@@ -190,9 +196,7 @@ int main()
   cout << "Copyright (c)1999-2006 by Robert J. Lang. All rights reserved." << endl;
   
   VerbalStreamDgmr vsdgmr(cout);
-  ReferenceFinder::SetDatabaseFn(&ConsoleDatabaseProgress);
-  ReferenceFinder::SetStatisticsFn(&ConsoleStatisticsProgress);
-  ReferenceFinder::MakeAllMarksAndLines();
+  InitializeSquare();
 
   //  Loop forever until the user quits from the menu.
   while (true) {
