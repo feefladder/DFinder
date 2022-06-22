@@ -86,13 +86,13 @@ void HTMLStreamDgmr::SetPointStyle(PointStyle pstyle)
 {
   switch (pstyle) {
     case POINTSTYLE_NORMAL:
-      (*mStream) << "stroke='black' stroke-width='1'";
+      (*mStream) << " class='pt_normal' ";//stroke='black' stroke-width='1'";
       break;
     case POINTSTYLE_HILITE:
-      (*mStream) << "stroke='rgb(128,64,64)' stroke-width='3'";
+      (*mStream) << " class='pt_hilite' ";//stroke='rgb(128,64,64)' stroke-width='3'";
       break;
     case POINTSTYLE_ACTION:
-      (*mStream) << "stroke='rgb(128,0,0)' stroke-width='3'";
+      (*mStream) << " class='pt_action' ";//stroke='rgb(128,0,0)' stroke-width='3'";
       break;
   }
 }
@@ -105,22 +105,22 @@ void HTMLStreamDgmr::SetLineStyle(LineStyle lstyle)
 {
   switch (lstyle) {
     case LINESTYLE_CREASE:
-      (*mStream) << "stroke='darkgray' stroke-width='.5'";
+      (*mStream) << " class='l_crease' ";//stroke='darkgray' stroke-width='.5'";
       break;
     case LINESTYLE_EDGE:
-      (*mStream) << "stroke='black' stroke-width='2'";
+      (*mStream) << " class='l_edge' ";//stroke='black' stroke-width='2'";
       break;
     case LINESTYLE_HILITE:
-      (*mStream) << "stroke='darkmagenta' stroke-width='2'";
+      (*mStream) << " class='l_hilite' ";//stroke='darkmagenta' stroke-width='2'";
       break;
     case LINESTYLE_VALLEY:
-      (*mStream) << "stroke='green' stroke-width='.5' stroke-dasharray='2'";
+      (*mStream) << " class='l_valley' ";//stroke='green' stroke-width='.5' stroke-dasharray='2'";
       break;
     case LINESTYLE_MOUNTAIN:
-      (*mStream) << "stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
+      (*mStream) << " class='l_mountain' ";//stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
       break;
     case LINESTYLE_ARROW:
-      (*mStream) << "stroke='darkgreen' stroke-width='.5'";
+      (*mStream) << " class='l_arrow' ";//stroke='darkgreen' stroke-width='.5'";
       break;
   }
 }

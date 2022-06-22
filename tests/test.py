@@ -3,4 +3,4 @@ import time
 
 df.InitializeSquare()
 # time.sleep(1)
-print(df.CalcDivisionsHTML(13))
+print(df.CalcDivisionsHTML(14))
