@@ -161,7 +161,7 @@ void OpenFile(string& fileName, fstream& fout, string ftype = "ps")
 }
 
 std::string CalcDivisionsHTML(int total){
-  while (!total%2){total = total/2;}
+  while (total%2 == 0){total = total/2;}
   cout<<"finding refences for: " << total << endl;
   vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that 
   vector<pair<int,RefLine*>> vls;
@@ -315,7 +315,7 @@ int main()
         int total;
         cin >> total;
         while(total<=1){std::cout<<"please enter a number larger than 1: "; cin>>total;}
-        while (total%2==0){total=total/2;} // the algorithm breaks for multiples of 2
+        // while (total%2==0){total=total/2;} // the algorithm breaks for multiples of 2
         string fileName;
         fstream fout;
         OpenFile(fileName, fout, "html");
