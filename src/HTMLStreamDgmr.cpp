@@ -53,10 +53,22 @@ HTMLStreamDgmr::HTMLStreamDgmr(std::ostream& os) :
 Make the HTML header
 *****/
 void HTMLStreamDgmr::MakeHeader(){
-  (*mStream)<<"<!DOCTYPE html>\n<html>\n<head>\n  <svg width='0' height='0'>\n    <defs>\n        <marker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto' markerUnits='strokeWidth'>\n"
-  "        <path d='M0,0 L9,3 L0,6' stroke='green' fill='none'/>\n        </marker>\n        <marker id='unfold_arrow' markerWidth='10' markerHeight='10' refX='0' refY='3' orient='auto' markerUnits='strokeWidth'>"
-  "        <path d='M0,3 L9,0 L9,6 z' stroke='green' fill='#fd7' stroke-linejoin='round' />\n        </marker>\n      </defs>\n"
-  "  </svg>\n</head>\n<body>";
+  (*mStream)<<R"(<!DOCTYPE html>
+    <html>
+    <head>
+      <svg width='0' height='0'>
+        <defs>
+          <marker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto' markerUnits='strokeWidth'>
+            <path d='M0,0 L9,3 L0,6' stroke='green' fill='none'/>
+          </marker>
+          <marker id='unfold_arrow' markerWidth='10' markerHeight='10' refX='0' refY='3' orient='auto' markerUnits='strokeWidth'>
+            <path d='M0,3 L9,0 L9,6 z' stroke='green' fill='#fd7' stroke-linejoin='round' />
+          </marker>
+        </defs>
+      </svg>)";
+    AddStyles();
+    (*mStream) << R"(</head>;
+    <body>)";
 }
 
 /***
@@ -86,17 +98,62 @@ void HTMLStreamDgmr::SetPointStyle(PointStyle pstyle)
 {
   switch (pstyle) {
     case POINTSTYLE_NORMAL:
-      (*mStream) << "stroke='black' stroke-width='1'";
+      (*mStream) << " class='pt_normal' ";
       break;
     case POINTSTYLE_HILITE:
-      (*mStream) << "stroke='rgb(128,64,64)' stroke-width='3'";
+      (*mStream) << " class='pt_hilite' ";
       break;
     case POINTSTYLE_ACTION:
-      (*mStream) << "stroke='rgb(128,0,0)' stroke-width='3'";
+      (*mStream) << " class='pt_action' ";
       break;
   }
 }
 
+void HTMLStreamDgmr::AddStyles(){
+  (*mStream) << R"(
+    <style>
+      .pt_normal {
+        stroke: black;
+        stroke-width: 1;
+      }
+      .pt_hilite {
+        stroke: rgb(128,64,64);
+        stroke-width: 3;
+      }
+      .pt_action {
+        stroke: rgb(128,0,0);
+        stroke-width: 3;
+      }
+
+      .l_crease {
+        stroke: darkgray;
+        stroke-width: .5;
+      }
+      .l_edge {
+        stroke: black;
+        stroke-width: 2;
+      }
+      .l_hilite {
+        stroke: darkmagenta;
+        stroke-width: 2;
+      }
+      .l_valley {
+        stroke: green;
+        stroke-width: .5;
+        stroke-dasharray: 2;
+      }
+      .l_mountain {
+        stroke: green;
+        stroke-width: .5;
+        stroke-dasharray: 3 2 2 2;
+      }
+      .l_arrow {
+        stroke: darkgreen;
+        stroke-width: .5;
+      }
+    </style>
+  )";
+}
 
 /*****
 Set the current graphics state to the given LineStyle
@@ -105,22 +162,22 @@ void HTMLStreamDgmr::SetLineStyle(LineStyle lstyle)
 {
   switch (lstyle) {
     case LINESTYLE_CREASE:
-      (*mStream) << "stroke='darkgray' stroke-width='.5'";
+      (*mStream) << " class='l_crease' ";//stroke='darkgray' stroke-width='.5'";
       break;
     case LINESTYLE_EDGE:
-      (*mStream) << "stroke='black' stroke-width='2'";
+      (*mStream) << " class='l_edge' ";//stroke='black' stroke-width='2'";
       break;
     case LINESTYLE_HILITE:
-      (*mStream) << "stroke='darkmagenta' stroke-width='2'";
+      (*mStream) << " class='l_hilite' ";//stroke='darkmagenta' stroke-width='2'";
       break;
     case LINESTYLE_VALLEY:
-      (*mStream) << "stroke='green' stroke-width='.5' stroke-dasharray='2'";
+      (*mStream) << " class='l_valley' ";//stroke='green' stroke-width='.5' stroke-dasharray='2'";
       break;
     case LINESTYLE_MOUNTAIN:
-      (*mStream) << "stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
+      (*mStream) << " class='l_mountain' ";//stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
       break;
     case LINESTYLE_ARROW:
-      (*mStream) << "stroke='darkgreen' stroke-width='.5'";
+      (*mStream) << " class='l_arrow' ";//stroke='darkgreen' stroke-width='.5'";
       break;
   }
 }

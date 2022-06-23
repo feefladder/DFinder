@@ -47,6 +47,7 @@ private:
 
   // HTMLStreamDgmr - specific stuff
   void MakeHeader();
+  void AddStyles();
   void SetPointStyle(PointStyle pstyle);
   void SetLineStyle(LineStyle lstyle);
   void SetPolyStyle(PolyStyle pstyle);
