@@ -40,52 +40,6 @@ void SVGDgmr::SetPointStyle(PointStyle pstyle)
   }
 }
 
-void SVGDgmr::AddStyles(){
-  return R"(
-    <style>
-      .pt_normal {
-        stroke: black;
-        stroke-width: 1;
-      }
-      .pt_hilite {
-        stroke: rgb(128,64,64);
-        stroke-width: 3;
-      }
-      .pt_action {
-        stroke: rgb(128,0,0);
-        stroke-width: 3;
-      }
-
-      .l_crease {
-        stroke: darkgray;
-        stroke-width: .5;
-      }
-      .l_edge {
-        stroke: black;
-        stroke-width: 2;
-      }
-      .l_hilite {
-        stroke: darkmagenta;
-        stroke-width: 2;
-      }
-      .l_valley {
-        stroke: green;
-        stroke-width: .5;
-        stroke-dasharray: 2;
-      }
-      .l_mountain {
-        stroke: green;
-        stroke-width: .5;
-        stroke-dasharray: 3 2 2 2;
-      }
-      .l_arrow {
-        stroke: darkgreen;
-        stroke-width: .5;
-      }
-    </style>
-  )";
-}
-
 /*****
 Set the current graphics state to the given LineStyle
 *****/
@@ -163,7 +117,7 @@ SVGDgmr::SVGPt SVGDgmr::ToSVG(const XYPt& aPt)
 /****
 Draw a fold-andunfold arrow
 ****/
-std::string  SVGDgmr::DrawFoldAndUnfoldArrow(const XYPt& fromPt, const XYPt& toPt)
+void SVGDgmr::DrawFoldAndUnfoldArrow(const XYPt& fromPt, const XYPt& toPt)
 {
   SVGPt fPt = ToSVG(fromPt);
   SVGPt tPt = ToSVG(toPt);
@@ -183,11 +137,7 @@ std::string  SVGDgmr::DrawFoldAndUnfoldArrow(const XYPt& fromPt, const XYPt& toP
   XYPt cp = (cp1 - sqmp).Mag() < (cp2 - sqmp).Mag() ? cp1 : cp2;
   // mp-=mu.Rotate90()*.25;
   SVGPt cPt = ToSVG(cp);
-
-  Indent();
-  return "<path d='M "<<fPt.px<<" "<<fPt.py<<"Q "<<cPt.px<<" "<<cPt.py<<" "<<tPt.px<<" "<<tPt.py
-    <<"' fill='none' stroke='green' stroke-width='1'"
-    <<"marker-start='url(#unfold_arrow)' marker-end='url(#arrow)'/>"<< std::endl;
+  (*mStream) "<path d='M "<<fPt.px<<" "<<fPt.py<<"Q "<<cPt.px<<" "<<cPt.py<<" "<<tPt.px<<" "<<tPt.py<<"' style='fold-unfold-arrow'/>"<< std::endl;
 }
 
 /*****
@@ -196,8 +146,6 @@ Draw an SVG point in the indicated style.
 std::string SVGDgmr::DrawPt(const XYPt& aPt, PointStyle pstyle)
 {
   SVGPt sPt = ToSVG(aPt);
-
-  Indent();
   return "<circle r='1' cx='"<<sPt.px<<"' cy='"<<sPt.py<<"'";
   SetPointStyle(pstyle);
   return "/>"<< std::endl;
@@ -212,8 +160,6 @@ std::string SVGDgmr::DrawLine(const XYPt& fromPt, const XYPt& toPt,
 {
   SVGPt fPt = ToSVG(fromPt);
   SVGPt tPt = ToSVG(toPt);
-
-  Indent();
   return "<line x1='"<<fPt.px<<"' y1='"<<fPt.py<<"' x2='"<<tPt.px<<"' y2='"<<tPt.py<<"'";
   SetLineStyle(lstyle);
   return "/>" << std::endl;
@@ -226,7 +172,6 @@ Fill and stroke the given poly in the indicated style.
 std::string SVGDgmr::DrawPoly(const std::vector<XYPt>& poly, PolyStyle pstyle)
 {
   // Since this is the 
-  Indent();
   return "<path d='M" << ToSVG(poly[poly.size()-1]);
   for (size_t i = 0; i < poly.size(); i++)
     return " L "<< ToSVG(poly[i]);
@@ -262,8 +207,8 @@ std::string SVGDgmr::DrawLabel(const XYPt& aPt, const std::string& aString, Labe
 }
 
 struct instruction {
-    std::string verbal;
-    std::string diagram;
+    std::string description
+    std::vector<std::pair<std::string,std::string>>> instructions;
 };
 
 /*****
@@ -271,12 +216,12 @@ Specialized version for division into nths
 Draw a set of marks or lines to a PostScript stream, showing distance and rank
 for each sequence.
 *****/
-void SVGDgmr::PutDividedRefList(int total, std::vector<std::pair<int,RefLine*>> vls)
+
+std::vector<std::pair<std::string,std::string>> SVGDgmr::PutDividedRefList(int total, std::vector<std::pair<int,RefLine*>> vls)
 {
-  for (size_t irow = 0; irow < 1; irow++) { //increase for more
+  const size_t irow = 0;
+  // for (size_t irow = 0; irow < 1; irow++) { //increase for more
     XYLine ar(double(vls[irow].first)/double(total));
-    // std::vector<int> cycle = find_cycle(total,vls[irow].first);
-    // NewLine();
     vls[irow].second->BuildDiagrams(true);
     mSVGOrigin.x = 25;
     mSVGOrigin.y = 25;
@@ -328,5 +273,5 @@ void SVGDgmr::PutDividedRefList(int total, std::vector<std::pair<int,RefLine*>> 
         NewLine();
       }
     }
-  }
+  // }
 }
