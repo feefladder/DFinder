@@ -299,6 +299,23 @@ void ReferenceFinder::FindBestLines(const XYLine& al, vector<RefLine*>& vl,
     CompareRankAndError<RefLine>(al));
 }
 
+void ReferenceFinder::FindBestDivisionLines(int total, std::vector<std::pair<int,RefLine*>>& vls){
+  while (total%2 == 0){total = total/2;} //putting in an even number breaks the algorithm
+  vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that 
+  for (auto cycle: cycles) {
+    for (auto division: cycle) {
+      string err;
+      XYLine ll(double(division)/double(total));
+      vector<RefLine*> vl;
+      ReferenceFinder::FindBestLines(ll, vl, 1);
+      for (auto l:vl){
+        vls.push_back(make_pair(division,l));
+      }
+    }
+  }
+  sort(vls.begin(),vls.end(),CompareRankAndErrorDivision<RefLine>(total));
+}
+
 
 /*****
 Return true if ap is a valid mark. Return an error message if it isn't.

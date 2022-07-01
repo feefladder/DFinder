@@ -853,6 +853,7 @@ public:
     short numMarks);
   static void FindBestLines(const XYLine& al, std::vector<RefLine*>& vl, 
     short numLines);
+  static void FindBestDivisionLines(int total, std::vector<std::pair<int, RefLine*>>& vls);
 
   // Utility routines for validating user input
   static bool ValidateMark(const XYPt& ap, std::string& err);
@@ -1006,6 +1007,31 @@ CompareRankAndErrorDivision(int total) : mTotal(total) {};
   };
 };
 
+/*******
+compare rank and error (same as above) when also accepting different references
+*******/
+// class CommpareRankAndErrorRefs{
+// public:
+// int mTotal;
+// CompareRankAndErrorDivision(){};
+//   bool operator()(std::pair<RefBase*,RefBase*> r1, std::pair<RefBase*,RefBase*> r2) const {
+//     // XYLine l1(double(r1.first)/double(mTotal));
+//     // XYLine l2(double(r2.first)/double(mTotal));
+//     // Compare the distances from the stored target. If both distances are less
+//     // than or equal to sGoodEnoughError, compare the refs by their rank.
+//     double d1 = r1.second->DistanceTo(r1.first);
+//     double d2 = r2.second->DistanceTo(r2.first);
+//     if ((d1 > ReferenceFinder::sGoodEnoughError) || 
+//       (d2 > ReferenceFinder::sGoodEnoughError)) {
+//       if (d1 == d2) return r1.second->mRank < r2.second->mRank; 
+//       else return d1 < d2;
+//     }
+//     else {
+//       if (r1.second->mRank == r2.second->mRank) return d1 < d2;
+//       else return r1.second->mRank < r2.second->mRank;
+//     }
+//   };
+// };
 
 #ifdef __MWERKS__
 #pragma mark -
