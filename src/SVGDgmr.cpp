@@ -19,7 +19,7 @@ double SVGDgmr::SVGUnit = 150;    // 72 pts = 1 inch, 1 unit = 64 pts, fits 7 dg
  */
 void SVGDgmr::PutTitle(RefBase &refbase)
 {
-  return "<title>"; refbase.PutHowto(*mStream); (*mStream) << "</title>" << std::endl;
+  (*mStream) << "<title>"; refbase.PutHowto(*mStream); (*mStream) << "</title>" << std::endl;
 }
 
 /*****
@@ -29,13 +29,13 @@ void SVGDgmr::SetPointStyle(PointStyle pstyle)
 {
   switch (pstyle) {
     case POINTSTYLE_NORMAL:
-      return " class='pt_normal' ";
+      (*mStream) << " class='pt_normal' ";
       break;
     case POINTSTYLE_HILITE:
-      return " class='pt_hilite' ";
+      (*mStream) << " class='pt_hilite' ";
       break;
     case POINTSTYLE_ACTION:
-      return " class='pt_action' ";
+      (*mStream) << " class='pt_action' ";
       break;
   }
 }
@@ -47,22 +47,22 @@ void SVGDgmr::SetLineStyle(LineStyle lstyle)
 {
   switch (lstyle) {
     case LINESTYLE_CREASE:
-      return " class='l_crease' ";//stroke='darkgray' stroke-width='.5'";
+      (*mStream) << " class='l_crease' ";//stroke='darkgray' stroke-width='.5'";
       break;
     case LINESTYLE_EDGE:
-      return " class='l_edge' ";//stroke='black' stroke-width='2'";
+      (*mStream) << " class='l_edge' ";//stroke='black' stroke-width='2'";
       break;
     case LINESTYLE_HILITE:
-      return " class='l_hilite' ";//stroke='darkmagenta' stroke-width='2'";
+      (*mStream) << " class='l_hilite' ";//stroke='darkmagenta' stroke-width='2'";
       break;
     case LINESTYLE_VALLEY:
-      return " class='l_valley' ";//stroke='green' stroke-width='.5' stroke-dasharray='2'";
+      (*mStream) << " class='l_valley' ";//stroke='green' stroke-width='.5' stroke-dasharray='2'";
       break;
     case LINESTYLE_MOUNTAIN:
-      return " class='l_mountain' ";//stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
+      (*mStream) << " class='l_mountain' ";//stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
       break;
     case LINESTYLE_ARROW:
-      return " class='l_arrow' ";//stroke='darkgreen' stroke-width='.5'";
+      (*mStream) << " class='l_arrow' ";//stroke='darkgreen' stroke-width='.5'";
       break;
   }
 }
@@ -75,13 +75,13 @@ std::string SVGDgmr::SetPolyStyle(PolyStyle pstyle)
 {
   switch (pstyle) {
     case POLYSTYLE_WHITE:
-      return "fill='#fd9'";
+      (*mStream) << "fill='#fd9'";
       break;
     case POLYSTYLE_COLORED:
-      return "fill='darkblue'";
+      (*mStream) << "fill='darkblue'";
       break;
     case POLYSTYLE_ARROW:
-      return "fill='green'";
+      (*mStream) << "fill='green'";
       break;
   }
 }
@@ -94,13 +94,13 @@ std::string SVGDgmr::SetLabelStyle(LabelStyle lstyle)
 {
   switch (lstyle) {
     case LABELSTYLE_NORMAL:
-      return "0 setgray ";
+      (*mStream) << "0 setgray ";
       break;
     case LABELSTYLE_HILITE:
-      return ".5 .25 .25 setrgbcolor ";
+      (*mStream) << ".5 .25 .25 setrgbcolor ";
       break;
     case LABELSTYLE_ACTION:
-      return ".5 0 0 setrgbcolor ";
+      (*mStream) << ".5 0 0 setrgbcolor ";
       break;
   }
 }
@@ -121,7 +121,6 @@ void SVGDgmr::DrawFoldAndUnfoldArrow(const XYPt& fromPt, const XYPt& toPt)
 {
   SVGPt fPt = ToSVG(fromPt);
   SVGPt tPt = ToSVG(toPt);
-  //TODO: make this a nice curved arrow
   XYPt mp = MidPoint(fromPt,toPt);
   XYPt mu = fromPt-toPt;
   XYPt mup = 0.3 * mu.Rotate90();  // std::vector from midpt to center of curvature
@@ -146,9 +145,9 @@ Draw an SVG point in the indicated style.
 std::string SVGDgmr::DrawPt(const XYPt& aPt, PointStyle pstyle)
 {
   SVGPt sPt = ToSVG(aPt);
-  return "<circle r='1' cx='"<<sPt.px<<"' cy='"<<sPt.py<<"'";
+  (*mStream) << "<circle r='1' cx='"<<sPt.px<<"' cy='"<<sPt.py<<"'";
   SetPointStyle(pstyle);
-  return "/>"<< std::endl;
+  (*mStream) << "/>"<< std::endl;
 }
 
 
@@ -160,9 +159,9 @@ std::string SVGDgmr::DrawLine(const XYPt& fromPt, const XYPt& toPt,
 {
   SVGPt fPt = ToSVG(fromPt);
   SVGPt tPt = ToSVG(toPt);
-  return "<line x1='"<<fPt.px<<"' y1='"<<fPt.py<<"' x2='"<<tPt.px<<"' y2='"<<tPt.py<<"'";
+  (*mStream) << "<line x1='"<<fPt.px<<"' y1='"<<fPt.py<<"' x2='"<<tPt.px<<"' y2='"<<tPt.py<<"'";
   SetLineStyle(lstyle);
-  return "/>" << std::endl;
+  (*mStream) << "/>" << std::endl;
 }
 
 
@@ -172,14 +171,14 @@ Fill and stroke the given poly in the indicated style.
 std::string SVGDgmr::DrawPoly(const std::vector<XYPt>& poly, PolyStyle pstyle)
 {
   // Since this is the 
-  return "<path d='M" << ToSVG(poly[poly.size()-1]);
+  (*mStream) << "<path d='M" << ToSVG(poly[poly.size()-1]);
   for (size_t i = 0; i < poly.size(); i++)
-    return " L "<< ToSVG(poly[i]);
-  return "'";
+    (*mStream) << " L "<< ToSVG(poly[i]);
+  (*mStream) << "'";
 
   // Fill the poly
   SetPolyStyle(pstyle);
-  // return "fill grestore " << std::endl;
+  // (*mStream) << "fill grestore " << std::endl;
   
   // Stroke the poly
   switch (pstyle) {
@@ -191,7 +190,7 @@ std::string SVGDgmr::DrawPoly(const std::vector<XYPt>& poly, PolyStyle pstyle)
       SetLineStyle(LINESTYLE_ARROW);
       break;
   };
-  return "/>" << std::endl;
+  (*mStream) << "/>" << std::endl;
 }
 
 
@@ -203,7 +202,7 @@ std::string SVGDgmr::DrawLabel(const XYPt& aPt, const std::string& aString, Labe
   // SetLabelStyle(lstyle);
   SVGPt sPt = ToSVG(aPt);
   Indent();
-  return "<text x='"<<sPt.px<<"' y='"<<sPt.py<<"'>"<<aString<<"</text>"<< std::endl;
+  (*mStream) << "<text x='"<<sPt.px<<"' y='"<<sPt.py<<"'>"<<aString<<"</text>"<< std::endl;
 }
 
 struct instruction {
