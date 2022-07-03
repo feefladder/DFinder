@@ -412,7 +412,7 @@ void HTMLStreamDgmr::PutDividedRefList(int total, std::vector<std::pair<int,RefL
 
   // Put some initial setup information 
   MakeHeader();
-  (*mStream) << "ReferenceFinder 4.0 by Robert J. Lang, hacky divisionfinder version by Joep Gevaert" << std::endl;
+  (*mStream) << "ReferenceFinder 4.0 by Robert J. Lang, hacky divisionfinder version by Freaky Fee" << std::endl;
   
   // Note the point we're searching for.
   // (*mStream) << "/Times-Roman findfont 9 scalefont setfont" << std::endl;
