@@ -5,26 +5,28 @@
 # Adjust these macros for your particular system
 #   (default values are appropriate for GNU tools)
 CC = g++
-CFLAGS = -O3 -Wpedantic -ansi --std=c++14
+CFLAGS = -O3 -Wpedantic -ansi --std=c++17
 # System-specific additional libraries
 LIBS = 
 # Destination directory for executables
-EXEDIR=../../../linux
-PROGRAM=$(EXEDIR)/ReferenceFinder.exe
+# EXEDIR=../../../linux
+# PROGRAM=$(EXEDIR)/ReferenceFinder.exe
 # Optional objects (depend on CALCINPUT)
 OPTOBJS = parser.o lexer.o
 
-OBJS = ReferenceFinder.o ReferenceFinder_console.o FindDivisions.o HTMLStreamDgmr.o $(OPTOBJS)
+OBJS = ReferenceFinder.o SVGDgmr.o ReferenceFinder_console.o FindDivisions.o HTMLStreamDgmr.o $(OPTOBJS)
 
 # Main rule
-$(PROGRAM): $(OBJS)
+dfinder: $(OBJS)
 	$(CC) $(OBJS) $(LIBS)
 ReferenceFinder.o: ReferenceFinder.cpp ReferenceFinder.h
 	$(CC) $(CFLAGS) -c ReferenceFinder.cpp
-ReferenceFinder_console.o: ReferenceFinder_console.cpp ReferenceFinder.h parser.h
+ReferenceFinder_console.o: ReferenceFinder_console.cpp ReferenceFinder.h parser.h # SVGDgmr.cpp
 	$(CC) $(CFLAGS) -c ReferenceFinder_console.cpp
 HTMLStreamDgmr.o: HTMLStreamDgmr.cpp HTMLStreamDgmr.h ReferenceFinder.h
 	$(CC) $(CFLAGS) -c HTMLStreamDgmr.cpp
+SVGDgmr.o: SVGDgmr.cpp SVGDgmr.h ReferenceFinder.h
+	$(CC) $(CFLAGS) -c SVGDgmr.cpp
 
 FindDivisions.o: FindDivisions.cpp FindDivisions.h
 	$(CC) $(CFLAGS) -c FindDivisions.cpp

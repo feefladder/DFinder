@@ -10,6 +10,7 @@ Copyright:    �1999-2006 Robert J. Lang. All Rights Reserved.
  
 #include "ReferenceFinder.h"
 #include "FindDivisions.h"
+#include "SVGDgmr.h"
 #include "HTMLStreamDgmr.h"
 // #include "RFVersion.h"
 
@@ -311,6 +312,25 @@ int main()
         cout << "Diagrams in <" << fileName << ">." << endl;
         break;
       }
+    case 5:{
+      int total, start;
+
+      cout<< std::endl << "enter total number of divisions:";
+      cin >> total;
+      cout << std::endl << "enter starting point:";
+      cin >> start;
+      SVGDgmr sdgmr;
+      std::cout << "total: " << total << ", start: " << start << std::endl;
+      instruction instructions = sdgmr.PutCycles(start, total);
+      std::cout << instructions.description;
+      for (auto d: instructions.diagrams){
+        std::cout << d << std::endl;
+      }
+      for (auto v: instructions.verbal){
+        std::cout << v<< std:: endl;
+      }
+      break;
+    }
       case 99: {
         // hidden command to calculate statistics on marks & report results
         ReferenceFinder::CalcStatistics();

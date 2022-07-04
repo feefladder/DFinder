@@ -385,7 +385,7 @@ void Parser::setVariable (const std::string &name,
 
 /* Could return Value * and return 0 if not found, but I want to return
    a copy to be sure no one changes the returned value */
-Parser::Value Parser::getVariable(const std::string &name) throw (Status) {
+Parser::Value Parser::getVariable(const std::string &name) {// throw (Status) {
   initIds ();
   Value *p = ids [name];
   if (! p)

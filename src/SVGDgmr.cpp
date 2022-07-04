@@ -3,7 +3,8 @@
 // #include <sstream>
 
 /**********
-class SVGDgmr - a specialization of RefDgmr that writes a HTML page
+class SVGDgmr - a specialization of RefDgmr that writes SVG output and returns
+it in strings   
 stream of diagrams.
 **********/
 
@@ -12,14 +13,14 @@ This class is used in the command-line version of ReferenceFinder to create
 a HTML graphics file of folding diagrams. It's also a good model for how
 to implement a true graphic outputter.
 */
-double SVGDgmr::SVGUnit = 150;    // 72 pts = 1 inch, 1 unit = 64 pts, fits 7 dgms
+// double SVGDgmr::SVGUnit = 150;    // 72 pts = 1 inch, 1 unit = 64 pts, fits 7 dgms
 // const XYRect SVGDgmr::sPSPageSize(40, 40, 572, 752);  // printable area on the page
 /***
  * Group and label the diagram
  */
-void SVGDgmr::PutTitle(RefBase &refbase)
+void SVGDgmr::GroupAndLabel(RefBase &refbase)
 {
-  (*mStream) << "<title>"; refbase.PutHowto(*mStream); (*mStream) << "</title>" << std::endl;
+  mStream << "<title>"; refbase.PutHowto(mStream); mStream << "</title>" << std::endl;
 }
 
 /*****
@@ -29,15 +30,23 @@ void SVGDgmr::SetPointStyle(PointStyle pstyle)
 {
   switch (pstyle) {
     case POINTSTYLE_NORMAL:
-      (*mStream) << " class='pt_normal' ";
+      mStream << " class='pt_normal' ";
       break;
     case POINTSTYLE_HILITE:
-      (*mStream) << " class='pt_hilite' ";
+      mStream << " class='pt_hilite' ";
       break;
     case POINTSTYLE_ACTION:
-      (*mStream) << " class='pt_action' ";
+      mStream << " class='pt_action' ";
       break;
   }
+}
+
+/*****
+Stream output for a SVG point TODO: make redundant
+*****/
+std::ostream& operator<<(std::ostream& os, const SVGDgmr::SVGPt& pp)
+{
+  return os << pp.px << " " << pp.py;
 }
 
 /*****
@@ -47,22 +56,22 @@ void SVGDgmr::SetLineStyle(LineStyle lstyle)
 {
   switch (lstyle) {
     case LINESTYLE_CREASE:
-      (*mStream) << " class='l_crease' ";//stroke='darkgray' stroke-width='.5'";
+      mStream << " class='l_crease' ";//stroke='darkgray' stroke-width='.5'";
       break;
     case LINESTYLE_EDGE:
-      (*mStream) << " class='l_edge' ";//stroke='black' stroke-width='2'";
+      mStream << " class='l_edge' ";//stroke='black' stroke-width='2'";
       break;
     case LINESTYLE_HILITE:
-      (*mStream) << " class='l_hilite' ";//stroke='darkmagenta' stroke-width='2'";
+      mStream << " class='l_hilite' ";//stroke='darkmagenta' stroke-width='2'";
       break;
     case LINESTYLE_VALLEY:
-      (*mStream) << " class='l_valley' ";//stroke='green' stroke-width='.5' stroke-dasharray='2'";
+      mStream << " class='l_valley' ";//stroke='green' stroke-width='.5' stroke-dasharray='2'";
       break;
     case LINESTYLE_MOUNTAIN:
-      (*mStream) << " class='l_mountain' ";//stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
+      mStream << " class='l_mountain' ";//stroke='green' stroke-width='.5' stroke-dasharray='3 2 2 2'";
       break;
     case LINESTYLE_ARROW:
-      (*mStream) << " class='l_arrow' ";//stroke='darkgreen' stroke-width='.5'";
+      mStream << " class='l_arrow' ";//stroke='darkgreen' stroke-width='.5'";
       break;
   }
 }
@@ -71,17 +80,17 @@ void SVGDgmr::SetLineStyle(LineStyle lstyle)
 /*****
 Set the current graphics state to the given PolyStyle
 *****/
-std::string SVGDgmr::SetPolyStyle(PolyStyle pstyle)
+void SVGDgmr::SetPolyStyle(PolyStyle pstyle)
 {
   switch (pstyle) {
     case POLYSTYLE_WHITE:
-      (*mStream) << "fill='#fd9'";
+      mStream << "fill='#fd9'";
       break;
     case POLYSTYLE_COLORED:
-      (*mStream) << "fill='darkblue'";
+      mStream << "fill='darkblue'";
       break;
     case POLYSTYLE_ARROW:
-      (*mStream) << "fill='green'";
+      mStream << "fill='green'";
       break;
   }
 }
@@ -90,17 +99,17 @@ std::string SVGDgmr::SetPolyStyle(PolyStyle pstyle)
 /*****
 Set the current graphics state to the given LabelStyle
 *****/
-std::string SVGDgmr::SetLabelStyle(LabelStyle lstyle)
+void SVGDgmr::SetLabelStyle(LabelStyle lstyle)
 {
   switch (lstyle) {
     case LABELSTYLE_NORMAL:
-      (*mStream) << "0 setgray ";
+      mStream << "0 setgray ";
       break;
     case LABELSTYLE_HILITE:
-      (*mStream) << ".5 .25 .25 setrgbcolor ";
+      mStream << ".5 .25 .25 setrgbcolor ";
       break;
     case LABELSTYLE_ACTION:
-      (*mStream) << ".5 0 0 setrgbcolor ";
+      mStream << ".5 0 0 setrgbcolor ";
       break;
   }
 }
@@ -136,49 +145,49 @@ void SVGDgmr::DrawFoldAndUnfoldArrow(const XYPt& fromPt, const XYPt& toPt)
   XYPt cp = (cp1 - sqmp).Mag() < (cp2 - sqmp).Mag() ? cp1 : cp2;
   // mp-=mu.Rotate90()*.25;
   SVGPt cPt = ToSVG(cp);
-  (*mStream) "<path d='M "<<fPt.px<<" "<<fPt.py<<"Q "<<cPt.px<<" "<<cPt.py<<" "<<tPt.px<<" "<<tPt.py<<"' style='fold-unfold-arrow'/>"<< std::endl;
+  mStream << "<path d='M "<<fPt.px<<" "<<fPt.py<<"Q "<<cPt.px<<" "<<cPt.py<<" "<<tPt.px<<" "<<tPt.py<<"' style='fold-unfold-arrow'/>"<< std::endl;
 }
 
 /*****
 Draw an SVG point in the indicated style.
 *****/
-std::string SVGDgmr::DrawPt(const XYPt& aPt, PointStyle pstyle)
+void SVGDgmr::DrawPt(const XYPt& aPt, PointStyle pstyle)
 {
   SVGPt sPt = ToSVG(aPt);
-  (*mStream) << "<circle r='1' cx='"<<sPt.px<<"' cy='"<<sPt.py<<"'";
+  mStream << "<circle r='1' cx='"<<sPt.px<<"' cy='"<<sPt.py<<"'";
   SetPointStyle(pstyle);
-  (*mStream) << "/>"<< std::endl;
+  mStream << "/>"<< std::endl;
 }
 
 
 /*****
 Draw a SVG line in the indicated style.
 *****/
-std::string SVGDgmr::DrawLine(const XYPt& fromPt, const XYPt& toPt, 
+void SVGDgmr::DrawLine(const XYPt& fromPt, const XYPt& toPt, 
   LineStyle lstyle)
 {
   SVGPt fPt = ToSVG(fromPt);
   SVGPt tPt = ToSVG(toPt);
-  (*mStream) << "<line x1='"<<fPt.px<<"' y1='"<<fPt.py<<"' x2='"<<tPt.px<<"' y2='"<<tPt.py<<"'";
+  mStream << "<line x1='"<<fPt.px<<"' y1='"<<fPt.py<<"' x2='"<<tPt.px<<"' y2='"<<tPt.py<<"'";
   SetLineStyle(lstyle);
-  (*mStream) << "/>" << std::endl;
+  mStream << "/>" << std::endl;
 }
 
 
 /*****
 Fill and stroke the given poly in the indicated style.
 *****/
-std::string SVGDgmr::DrawPoly(const std::vector<XYPt>& poly, PolyStyle pstyle)
+void SVGDgmr::DrawPoly(const std::vector<XYPt>& poly, PolyStyle pstyle)
 {
   // Since this is the 
-  (*mStream) << "<path d='M" << ToSVG(poly[poly.size()-1]);
+  mStream << "<path d='M" << ToSVG(poly[poly.size()-1]);
   for (size_t i = 0; i < poly.size(); i++)
-    (*mStream) << " L "<< ToSVG(poly[i]);
-  (*mStream) << "'";
+    mStream << " L "<< ToSVG(poly[i]);
+  mStream << "'";
 
   // Fill the poly
   SetPolyStyle(pstyle);
-  // (*mStream) << "fill grestore " << std::endl;
+  // mStream << "fill grestore " << std::endl;
   
   // Stroke the poly
   switch (pstyle) {
@@ -190,25 +199,21 @@ std::string SVGDgmr::DrawPoly(const std::vector<XYPt>& poly, PolyStyle pstyle)
       SetLineStyle(LINESTYLE_ARROW);
       break;
   };
-  (*mStream) << "/>" << std::endl;
+  mStream << "/>" << std::endl;
 }
 
 
 /*****
 Draw a text label at the point aPt in the indicated style
 *****/
-std::string SVGDgmr::DrawLabel(const XYPt& aPt, const std::string& aString, LabelStyle lstyle)
+void SVGDgmr::DrawLabel(const XYPt& aPt, const std::string& aString, LabelStyle lstyle)
 {
   // SetLabelStyle(lstyle);
   SVGPt sPt = ToSVG(aPt);
-  Indent();
-  (*mStream) << "<text x='"<<sPt.px<<"' y='"<<sPt.py<<"'>"<<aString<<"</text>"<< std::endl;
+  mStream << "<text x='"<<sPt.px<<"' y='"<<sPt.py<<"'>"<<aString<<"</text>"<< std::endl;
 }
 
-struct instruction {
-    std::string description
-    std::vector<std::pair<std::string,std::string>>> instructions;
-};
+
 
 /*****
 Specialized version for division into nths
@@ -216,61 +221,94 @@ Draw a set of marks or lines to a PostScript stream, showing distance and rank
 for each sequence.
 *****/
 
-std::vector<std::pair<std::string,std::string>> SVGDgmr::PutDividedRefList(int total, std::vector<std::pair<int,RefLine*>> vls)
-{
-  const size_t irow = 0;
-  // for (size_t irow = 0; irow < 1; irow++) { //increase for more
-    XYLine ar(double(vls[irow].first)/double(total));
-    vls[irow].second->BuildDiagrams(true);
-    mSVGOrigin.x = 25;
-    mSVGOrigin.y = 25;
-    for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-      RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
-      CloseTag(); //g
-      mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
-    };
-    CloseTag();
-    // (*mStream) << "</svg>";
-    // Also put the text description below the diagrams   
+// std::vector<std::pair<std::string,std::string>> SVGDgmr::PutDividedRefList(int total, std::vector<std::pair<int,RefLine*>> vls)
+// {
+//   const size_t irow = 0;
+//   *mStrea
+//   // for (size_t irow = 0; irow < 1; irow++) { //increase for more
+//     XYLine ar(double(vls[irow].first)/double(total));
+//     vls[irow].second->BuildDiagrams(true);
+//     mSVGOrigin.x = 25;
+//     mSVGOrigin.y = 25;
+//     for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
+//       RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
+//       // CloseTag(); //g
+//       // mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
+//     };
+//     CloseTag();
+//     // mStream << "</svg>";
+//     // Also put the text description below the diagrams   
 
-    NewLine();
-    (*mStream) << "Found a solution for: " << vls[irow].first << "/" << total << std::endl;
-    NewLine();
-    vls[irow].second->PutDistanceAndRank(*mStream, ar);
+//     NewLine();
+//     mStream << "Found a solution for: " << vls[irow].first << "/" << total << std::endl;
+//     NewLine();
+//     vls[irow].second->PutDistanceAndRank(*mStream, ar);
     
-    for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
-      if (RefBase::sSequence[i]->PutHowto(*mStream)) {
-        NewLine();
-      }
-    }
-    // NewLine();
-    RefLine* vr = new RefLine(ReferenceFinder::FoldCycles(vls[irow].first,total,vls[irow].second->mRank));
+//     for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
+//       if (RefBase::sSequence[i]->PutHowto(mStream)) {
+//         NewLine();
+//       }
+//     }
+//     // NewLine();
+//     RefLine* vr = new RefLine(ReferenceFinder::FoldCycles(vls[irow].first,total,vls[irow].second->mRank));
+//     vr->BuildDiagrams(false);
+//     mSVGOrigin.x = 0;
+//     mSVGOrigin.y = 25;
+//     size_t cols = 10;
+//     size_t rows = total/cols+1;
+//     mStream << "<svg width='"<<(cols-.2)*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2+50<<"px' height='"<<rows*SVGUnit*ReferenceFinder::sPaper.mHeight*1.2+50<<"px'>"<< std::endl;
+//     AddClosingTag("svg");
+//     for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
+//       RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
+//       CloseTag(); //g
+//       if(icol%cols!=cols-1) {
+//         mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
+//       } else {
+//         mSVGOrigin.x = 0;
+//         mSVGOrigin.y += 1.2 * ReferenceFinder::sPaper.mHeight * SVGUnit;
+//       }
+//     }
+//     CloseTag(); //svg
+    
+//     // mStream << "</svg>" << std::endl;
+//     // Also put the text description below the diagrams   
+//     NewLine();
+//     for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
+//       if (RefBase::sSequence[i]->PutHowto(mStream)) {
+//         NewLine();
+//       }
+//     }
+//   // }
+// }
+
+
+instruction SVGDgmr::PutCycles(int start, int total){
+  instruction instructions;
+  std::cout << "bla" << std::endl;
+  mStream.str("Fold all remaining lines from ");
+  mStream << start << "/" << total << ".";
+  // std::cout << "random " << 
+  instructions.description = mStream.str();
+  std::cout << instructions.description << std::endl;
+
+  RefLine* vr = new RefLine(ReferenceFinder::FoldCycles(start,total,1));
     vr->BuildDiagrams(false);
     mSVGOrigin.x = 0;
     mSVGOrigin.y = 25;
     size_t cols = 10;
     size_t rows = total/cols+1;
-    (*mStream) << "<svg width='"<<(cols-.2)*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2+50<<"px' height='"<<rows*SVGUnit*ReferenceFinder::sPaper.mHeight*1.2+50<<"px'>"<< std::endl;
-    AddClosingTag("svg");
+    // mStream << "<svg width='"<<(cols-.2)*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2+50<<"px' height='"<<rows*SVGUnit*ReferenceFinder::sPaper.mHeight*1.2+50<<"px'>"<< std::endl;
+    // AddClosingTag("svg");
+    // clear mStream
+    mStream.str(std::string());
     for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
       RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
-      CloseTag(); //g
-      if(icol%cols!=cols-1) {
-        mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
-      } else {
-        mSVGOrigin.x = 0;
-        mSVGOrigin.y += 1.2 * ReferenceFinder::sPaper.mHeight * SVGUnit;
-      }
+      instructions.diagrams.push_back(mStream.str());
+      mStream.str(std::string());
+      RefBase::sSequence[icol]->PutHowto(mStream);
+      instructions.verbal.push_back(mStream.str());
+      mStream.str(std::string());
     }
-    CloseTag(); //svg
-    
-    // (*mStream) << "</svg>" << std::endl;
-    // Also put the text description below the diagrams   
-    NewLine();
-    for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
-      if (RefBase::sSequence[i]->PutHowto(*mStream)) {
-        NewLine();
-      }
-    }
-  // }
+
+    return instructions;
 }

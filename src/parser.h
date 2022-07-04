@@ -98,7 +98,7 @@ public:
   static void setVariable (const std::string &name, const Value &val,
          bool overwrite = true);
   // retrieves a variable's value; throws an exception if not found
-  static Value getVariable (const std::string &name) throw (Status);
+  static Value getVariable (const std::string &name);// throw (Status);
 
  private:
   // parse string and evaluate expression
