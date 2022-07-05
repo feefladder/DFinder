@@ -29,10 +29,10 @@ ext_modules = [
 setup(
     name="dfinder",
     version=__version__,
-    author="Sylvain Corlay",
+    author="Freaky Fee",
     author_email="sylvain.corlay@gmail.com",
-    url="https://github.com/pybind/dfinder",
-    description="A test project using pybind11",
+    url="https://github.com/feefladder/dfinder",
+    description="A package for finding references on a paper",
     long_description="",
     ext_modules=ext_modules,
     extras_require={"test": "pytest"},

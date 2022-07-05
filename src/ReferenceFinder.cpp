@@ -1298,6 +1298,10 @@ bool RefMark_Intersection::UsesImmediate(RefBase* rb) const
   return (rb == rl1 || rb == rl2);
 }
 
+bool RefMark_Intersection::IsActionLine() const
+{
+  return true;
+}
 
 /*****
 Build the folding sequence that constructs this object.

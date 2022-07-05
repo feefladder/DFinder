@@ -380,8 +380,8 @@ public:
   void FinishConstructor();
   
   double DistanceTo(const XYPt& ap) const;
-  bool IsOnEdge() const;    
-  bool IsActionLine() const;
+  bool IsOnEdge() const;
+  virtual bool IsActionLine() const;
 
   const std::string GetLabel() const;
   bool PutName(std::ostream& os) const;
@@ -432,6 +432,8 @@ public:
   RefLine* rl2;   // second line
   
   RefMark_Intersection(RefLine* al1, RefLine* al2);
+
+  virtual bool  IsActionLine() const;
 
   bool UsesImmediate(RefBase* rb) const;
   void SequencePushSelf();      
