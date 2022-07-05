@@ -301,7 +301,7 @@ void ReferenceFinder::FindBestLines(const XYLine& al, vector<RefLine*>& vl,
 
 void ReferenceFinder::FindBestDivisionLines(int total, std::vector<std::pair<int,RefLine*>>& vls){
   while (total%2 == 0){total = total/2;} //putting in an even number breaks the algorithm
-  vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that 
+  vector<vector<int>> cycles = DivisionFinder::find_cycles(total); //find all divisions that we need
   for (auto cycle: cycles) {
     for (auto division: cycle) {
       string err;

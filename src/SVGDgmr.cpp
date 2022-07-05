@@ -145,7 +145,7 @@ void SVGDgmr::DrawFoldAndUnfoldArrow(const XYPt& fromPt, const XYPt& toPt)
   XYPt cp = (cp1 - sqmp).Mag() < (cp2 - sqmp).Mag() ? cp1 : cp2;
   // mp-=mu.Rotate90()*.25;
   SVGPt cPt = ToSVG(cp);
-  mStream << "<path d='M "<<fPt.px<<" "<<fPt.py<<"Q "<<cPt.px<<" "<<cPt.py<<" "<<tPt.px<<" "<<tPt.py<<"' style='fold-unfold-arrow'/>"<< std::endl;
+  mStream << "<path d='M "<<fPt.px<<" "<<fPt.py<<"Q "<<cPt.px<<" "<<cPt.py<<" "<<tPt.px<<" "<<tPt.py<<"' class='fold-unfold-arrow'/>"<< std::endl;
 }
 
 /*****
@@ -221,65 +221,36 @@ Draw a set of marks or lines to a PostScript stream, showing distance and rank
 for each sequence.
 *****/
 
-// std::vector<std::pair<std::string,std::string>> SVGDgmr::PutDividedRefList(int total, std::vector<std::pair<int,RefLine*>> vls)
-// {
-//   const size_t irow = 0;
-//   *mStrea
-//   // for (size_t irow = 0; irow < 1; irow++) { //increase for more
-//     XYLine ar(double(vls[irow].first)/double(total));
-//     vls[irow].second->BuildDiagrams(true);
-//     mSVGOrigin.x = 25;
-//     mSVGOrigin.y = 25;
-//     for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-//       RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
-//       // CloseTag(); //g
-//       // mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
-//     };
-//     CloseTag();
-//     // mStream << "</svg>";
-//     // Also put the text description below the diagrams   
+std::vector<instruction> SVGDgmr::PutDividedRefList(size_t total, std::vector<std::pair<int,RefLine*>> vls)
+{
+  std::vector<instruction> all_inst;
+  mStream.str(std::string());
+  for (auto vl: vls) {
+    instruction instructions;
+    XYLine ar(double(vl.first)/double(total));
 
-//     NewLine();
-//     mStream << "Found a solution for: " << vls[irow].first << "/" << total << std::endl;
-//     NewLine();
-//     vls[irow].second->PutDistanceAndRank(*mStream, ar);
+    mStream.str(std::string());
+    mStream << "Found a solution for: " << vl.first << "/" << total << std::endl;
+    vl.second->PutDistanceAndRank(mStream, ar);
+    instructions.description = mStream.str();
+    mStream.str(std::string());
+
+    vl.second->BuildDiagrams(true);
+    for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
+      RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
+      instructions.diagrams.push_back(mStream.str());
+      mStream.str(std::string());
+      RefBase::sSequence[icol]->PutHowto(mStream);
+      instructions.verbal.push_back(mStream.str());
+      mStream.str(std::string());
+    };
+    // mStream << "</svg>";
+    // Also put the text description below the diagrams   
     
-//     for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
-//       if (RefBase::sSequence[i]->PutHowto(mStream)) {
-//         NewLine();
-//       }
-//     }
-//     // NewLine();
-//     RefLine* vr = new RefLine(ReferenceFinder::FoldCycles(vls[irow].first,total,vls[irow].second->mRank));
-//     vr->BuildDiagrams(false);
-//     mSVGOrigin.x = 0;
-//     mSVGOrigin.y = 25;
-//     size_t cols = 10;
-//     size_t rows = total/cols+1;
-//     mStream << "<svg width='"<<(cols-.2)*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2+50<<"px' height='"<<rows*SVGUnit*ReferenceFinder::sPaper.mHeight*1.2+50<<"px'>"<< std::endl;
-//     AddClosingTag("svg");
-//     for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-//       RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
-//       CloseTag(); //g
-//       if(icol%cols!=cols-1) {
-//         mSVGOrigin.x += 1.2 * ReferenceFinder::sPaper.mWidth * SVGUnit;
-//       } else {
-//         mSVGOrigin.x = 0;
-//         mSVGOrigin.y += 1.2 * ReferenceFinder::sPaper.mHeight * SVGUnit;
-//       }
-//     }
-//     CloseTag(); //svg
-    
-//     // mStream << "</svg>" << std::endl;
-//     // Also put the text description below the diagrams   
-//     NewLine();
-//     for (size_t i = 0; i < RefBase::sSequence.size(); i++) {
-//       if (RefBase::sSequence[i]->PutHowto(mStream)) {
-//         NewLine();
-//       }
-//     }
-//   // }
-// }
+    all_inst.push_back(instructions);
+  }
+  return all_inst;
+}
 
 
 instruction SVGDgmr::PutCycles(int start, int total){
@@ -293,10 +264,6 @@ instruction SVGDgmr::PutCycles(int start, int total){
 
   RefLine* vr = new RefLine(ReferenceFinder::FoldCycles(start,total,1));
     vr->BuildDiagrams(false);
-    mSVGOrigin.x = 0;
-    mSVGOrigin.y = 25;
-    size_t cols = 10;
-    size_t rows = total/cols+1;
     // mStream << "<svg width='"<<(cols-.2)*SVGUnit*ReferenceFinder::sPaper.mWidth*1.2+50<<"px' height='"<<rows*SVGUnit*ReferenceFinder::sPaper.mHeight*1.2+50<<"px'>"<< std::endl;
     // AddClosingTag("svg");
     // clear mStream

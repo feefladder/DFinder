@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include "ReferenceFinder_console.h"
 // #include "ReferenceFinder.cpp"
 // #include "ReferenceFinder.h"
@@ -7,15 +8,21 @@
 // #include "parser.cpp"
 // #include "lexer.cpp"
 // #include "lexer.h"
+#include "SVGDgmr.h"
+#include "ReferenceFinder.h"
+#include "FindDivisions.h"
+
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-int add(int i, int j) {
-    return i + j;
-}
-
 namespace py = pybind11;
+
+class Pet {
+public:
+    Pet(){ }
+    std::string name = "Mary";
+};
 
 PYBIND11_MODULE(dfinder, m) {
     m.doc() = R"pbdoc(
@@ -30,21 +37,18 @@ PYBIND11_MODULE(dfinder, m) {
            add
            subtract
     )pbdoc";
-
-    m.def("add", &add, R"pbdoc(
-        Add two numbers
-
-        Some other explanation about the add function.
-    )pbdoc");
-
-    m.def("subtract", [](int i, int j) { return i - j; }, R"pbdoc(
-        Subtract two numbers
-
-        Some other explanation about the subtract function.
-    )pbdoc");
-
     m.def("InitializeSquare",  &InitializeSquare,  "Initialize a square of paper");
     m.def("CalcDivisionsHTML", &CalcDivisionsHTML, "Calculate divisions for a square");
+
+    py::class_<instruction>(m, "instruction")
+        .def(py::init())
+        // .def_readonly("name", &Pet::name);
+        .def_readwrite("description", &instruction::description)
+        .def_readwrite("diagrams",    &instruction::diagrams)
+        .def_readwrite("verbal",      &instruction::verbal);
+
+    m.def("FindDivisionsSVG", &FindDivisionsSVG, "find folding sequences for all divisions");
+    m.def("FoldCyclesSVG",    &FoldCyclesSVG,    "fold all remaining lines, starting from start");
 
 
 #ifdef VERSION_INFO

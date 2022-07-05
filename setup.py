@@ -22,7 +22,7 @@ ext_modules = [
         sorted(glob("src/*.cpp")),
         # Example: passing in the version to the compiled code
         define_macros = [('VERSION_INFO', __version__),],
-        cxx_std=14,
+        cxx_std=17,
         ),
 ]
 

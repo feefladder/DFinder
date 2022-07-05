@@ -5,10 +5,18 @@
 #include <sstream>
 #include <stack>
 
-struct instruction {
-    std::string description;
-    std::vector<std::string> diagrams;
-    std::vector<std::string> verbal;
+class instruction {
+public:
+  std::string description;
+  std::vector<std::string> diagrams;
+  std::vector<std::string> verbal;
+  void PrintInstructions() {
+    std::cout << description << std::endl;
+    for (auto d: diagrams)
+      std::cout << d << std::endl;
+    for (auto v: verbal)
+      std::cout << v << std::endl;
+  }
 };
 
 /**********
@@ -22,7 +30,7 @@ public:
 
   std::ostringstream mStream = std::ostringstream();
 
-  void PutDividedRefList(int total, std::vector<std::pair<int,RefLine*> > vls);
+  std::vector<instruction> PutDividedRefList(size_t total, std::vector<std::pair<int,RefLine*> > vls);
   // void PutLineDiagrams(RefLine* vr);
   instruction PutCycles(int start, int total);
 

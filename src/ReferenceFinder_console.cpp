@@ -176,6 +176,20 @@ void InitializeSquare() {
   ReferenceFinder::MakeAllMarksAndLines();
 }
 
+std::vector<instruction> FindDivisionsSVG(int total){
+  vector<pair<int,RefLine*>> vls;
+  ReferenceFinder::FindBestDivisionLines(total,vls);
+  SVGDgmr sdgmr;
+  std::vector<instruction> all_inst = sdgmr.PutDividedRefList(total,vls);
+  return all_inst;
+}
+
+instruction FoldCyclesSVG(int total, int start){
+  SVGDgmr sdgmr;
+  instruction instructions = sdgmr.PutCycles(start, total);
+  return instructions;
+}
+
 /******************************
 Main program loop
 ******************************/
@@ -319,15 +333,17 @@ int main()
       cin >> total;
       cout << std::endl << "enter starting point:";
       cin >> start;
-      SVGDgmr sdgmr;
-      std::cout << "total: " << total << ", start: " << start << std::endl;
-      instruction instructions = sdgmr.PutCycles(start, total);
-      std::cout << instructions.description;
-      for (auto d: instructions.diagrams){
-        std::cout << d << std::endl;
-      }
-      for (auto v: instructions.verbal){
-        std::cout << v<< std:: endl;
+      instruction instructions = FoldCyclesSVG(total, start);
+      instructions.PrintInstructions();
+      break;
+    }
+    case 6:{
+      int total;
+      cout <<std::endl<< "enter total number of divisions: ";
+      cin >> total;
+      std::vector<instruction> all_inst = FindDivisionsSVG(total);
+      for(auto i: all_inst){
+          i.PrintInstructions();
       }
       break;
     }
