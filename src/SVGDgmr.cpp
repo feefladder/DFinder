@@ -223,6 +223,9 @@ for each sequence.
 
 std::vector<instruction> SVGDgmr::PutDividedRefList(size_t total, std::vector<std::pair<int,RefLine*>> vls)
 {
+  ReferenceFinder::sClarifyVerbalAmbiguities = false;
+  ReferenceFinder::sAxiomsInVerbalDirections = false;
+
   std::vector<instruction> all_inst;
   mStream.str(std::string());
   for (auto vl: vls) {
@@ -255,6 +258,9 @@ std::vector<instruction> SVGDgmr::PutDividedRefList(size_t total, std::vector<st
 
 
 instruction SVGDgmr::PutCycles(int start, int total){
+  ReferenceFinder::sClarifyVerbalAmbiguities = false;
+  ReferenceFinder::sAxiomsInVerbalDirections = false;
+
   instruction instructions;
   std::cout << "bla" << std::endl;
   mStream.str("Fold all remaining lines from ");
