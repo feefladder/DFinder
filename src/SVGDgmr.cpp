@@ -236,16 +236,17 @@ std::vector<instruction> SVGDgmr::PutDividedRefList(size_t total, std::vector<st
     mStream.str(std::string());
 
     vl.second->BuildDiagrams(true);
-    for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-      RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
+    for (auto Dgm: RefBase::sDgms) {
+      RefBase::DrawDiagram(*this, Dgm);
       instructions.diagrams.push_back(mStream.str());
       mStream.str(std::string());
-      RefBase::sSequence[icol]->PutHowto(mStream);
-      instructions.verbal.push_back(mStream.str());
-      mStream.str(std::string());
-    };
-    // mStream << "</svg>";
-    // Also put the text description below the diagrams   
+    }
+    for (auto ref : RefBase::sSequence) {
+      if(ref->PutHowto(mStream)){
+        instructions.verbal.push_back(mStream.str());
+        mStream.str(std::string());
+      }
+    }
     
     all_inst.push_back(instructions);
   }
@@ -268,13 +269,16 @@ instruction SVGDgmr::PutCycles(int start, int total){
     // AddClosingTag("svg");
     // clear mStream
     mStream.str(std::string());
-    for (size_t icol = 0; icol < RefBase::sDgms.size(); icol++) {
-      RefBase::DrawDiagram(*this, RefBase::sDgms[icol]);
+    for (auto Dgm: RefBase::sDgms) {
+      RefBase::DrawDiagram(*this, Dgm);
       instructions.diagrams.push_back(mStream.str());
       mStream.str(std::string());
-      RefBase::sSequence[icol]->PutHowto(mStream);
-      instructions.verbal.push_back(mStream.str());
-      mStream.str(std::string());
+    }
+    for (auto ref : RefBase::sSequence) {
+      if(ref->PutHowto(mStream)){
+        instructions.verbal.push_back(mStream.str());
+        mStream.str(std::string());
+      }
     }
 
     return instructions;
